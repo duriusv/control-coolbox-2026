@@ -1,0 +1,119 @@
+# 🛡️ CHECKPOINT MAESTRO DE INGENIERÍA — SISTEMA COOLBOX 2026
+## Estado de Consolidación y Línea Base de Operaciones
+**Empresa Ejecutora:** JSERVICE RV E.I.R.L.  
+**Cliente Mandante:** RASH PERÚ S.R.L. (Cadena de Tiendas Coolbox)  
+**Supervisión General:** Andrews Berbesia (Jefatura de Operaciones) y Jesús Silva (Gerencia General)  
+**Metodología de Desarrollo:** SDD (Specification-Driven Development)  
+**Fecha de Emisión del Punto de Control:** Septiembre de 2026  
+**Regla de Nomenclatura Institucional:** Prohibición absoluta del carácter comercial anglosajón en cualquier texto, variable o atributo (sustituido siempre por "y" o "e").
+
+---
+
+## 1. ARQUITECTURA GENERAL DEL SISTEMA (LA TRÍADA)
+
+El ecosistema operativo se compone de tres piezas totalmente sincronizadas:
+1. **Aplicación Móvil de Campo para Técnicos (`index.html` en la raíz del proyecto — ~337 KB / 2.800+ líneas):**
+   - Diseñada para uso en smartphones por las cuadrillas de soporte técnico.
+   - Navegación por vistas estructuradas: Datos de Sede, Mantenimiento Preventivo, Control de Activos, Registro Fotográfico y Firmas Digitales.
+   - Cuenta con persistencia local en memoria del navegador para evitar pérdida de datos si la cuadrilla pierde señal celular.
+
+2. **Panel de Supervisión y Control Administrativo (`Control Coolbox Admin/index.html` — ~300 KB):**
+   - Dashboard ejecutivo para gerencia y supervisores de operaciones.
+   - Vistas adaptadas a pantalla completa a 100vh sin barras de desplazamiento globales en PC.
+   - Vista móvil responsive corregida con cuadrícula KPI de 2x2 y filtros flexibles sin solapamientos.
+   - Motor de reportes oficiales: emisión de Ficha Técnica de 2 páginas (con anexo de 8 fotos) y Acta de Entrega formal suscrita por Jesús Silva y Andrews Berbesia con firmas de 70px de despeje vertical.
+
+3. **Backend y Base de Datos (Google Apps Script y Google Sheets):**
+   - Libro de cálculo maestro en Google Drive: `Control_Coolbox_Dev_2026`.
+   - Web App de Apps Script con endpoint REST publicado:
+     `API_BACKEND_URL = "https://script.google.com/macros/s/AKfycbyOGivG_VPrQDyh-8qXaIhFacwyrom2iG5cKxVu6JrBKIH1WWeQUx2NC6IzsMaeI6O93Q/exec";`
+   - Función `doGet` para consulta de tiendas y `doPost` unificado para procesamiento de atenciones y despacho de correos con PDF adjunto.
+
+---
+
+## 2. MAPEO OFICIAL DE LA BASE DE DATOS (SINGLE SOURCE OF TRUTH)
+
+Tras la auditoría directa sobre los archivos CSV físicos del proyecto, se desterraron las alucinaciones previas ("HISTORIAL_ATENCIONES" e "INVENTARIO_GENERAL"). La estructura real y confirmada es la siguiente:
+
+### A. Tabla `DB_TIENDAS` (13 Columnas — 142 Filas)
+Catálogo maestro de las 140 sedes oficiales de la campaña más cabecera y totales:
+`CODIGO_TIENDA, NOMBRE_TIENDA, CIUDAD, DIRECCION, CLASIFICACION, SERVIDOR_IGC, ESTADO_ATENCION, EQUIPOS ASIGNADOS, VTAMOVIL, CAJAS FIJAS, TICKETERA, LECTOR, GAVETA`
+
+### B. Tabla `REGISTRO_MANTENIMIENTO` (22 Columnas Exactas, de la A a la V)
+Tabla transaccional ampliada para soportar el protocolo completo de inspección, las 8 fotos y las 2 firmas:
+1. `ID_VISITA`: Clave primaria única generada en servidor (ej. `VIS-B11-20260909-1430`).
+2. `FECHA_HORA`: Marca temporal formateada de la atención.
+3. `TECNICO`: Nombres de la cuadrilla técnica consolidada.
+4. `CODIGO_TIENDA`: Identificador de la tienda atendida (ej. `B11`, `B22`).
+5. `GABINETE_LIMPIEZA`: Estado de soplado y limpieza de rack (Conforme, No Conforme, No Aplica).
+6. `GABINETE_VENTILADORES`: Evaluación operativa de extractores (Operativo, Inoperativo, No Tiene).
+7. `GABINETE_PDU`: Evaluación del suministro eléctrico del rack (Operativo, Observado).
+8. `URL_FOTO_ANTES`: Enlace en Google Drive de la foto del rack antes del servicio.
+9. `URL_FOTO_DESPUES`: Enlace en Google Drive de la foto del rack después del servicio.
+10. `OBSERVACIONES_GABINETE`: Novedades técnicas del rack.
+11. `COMPUTO_ESTADO`: JSON estructurado con el checklist de tareas por cada estación.
+12. `OBSERVACIONES_COMPUTO`: Novedades técnicas de computadores y periféricos.
+13. `URL_FOTO_POS1`: Enlace en Google Drive de la foto de periféricos de Caja 1.
+14. `URL_FOTO_POS2`: Enlace en Google Drive de la foto de periféricos de Caja 2.
+15. `URL_FOTO_BACKUP`: Enlace en Google Drive de la foto de equipos de reserva en almacén.
+16. `URL_FOTO_PDU`: Enlace en Google Drive de la foto de inspección de PDU y estabilizador.
+17. `URL_FOTO_PANORAMICA`: Enlace en Google Drive de la vista panorámica de la tienda.
+18. `URL_FOTO_ACTA`: Enlace en Google Drive de la foto del acta física o validación final.
+19. `FIRMA_TECNICO_URL`: Enlace en Google Drive de la firma táctil digitalizada del técnico.
+20. `FIRMA_CLIENTE_URL`: Enlace en Google Drive de la firma táctil del encargado de tienda.
+21. `NOMBRE_ENCARGADO`: Nombres y apellidos completos de quien recepciona en tienda.
+22. `DNI_ENCARGADO`: Documento Nacional de Identidad del encargado de tienda.
+
+### C. Tabla `INVENTARIO_EQUIPOS` (11 Columnas Relacionales)
+Tabla donde cada activo físico ocupa una fila individual:
+`ID_ITEM, ID_VISITA, FECHA_REGISTRO, CODIGO_TIENDA, TIPO_EQUIPO, MARCA, MODELO, NUMERO_SERIE, COD_INVENTARIO, UBICACION_CAJA, CONDICION`
+
+### D. Tabla `Copy of RASH PERU SAC`
+Respaldo estático e histórico entregado por el cliente.
+
+---
+
+## 3. ESTADO DEL BACKEND (`Codigo.gs`)
+
+El código de Google Apps Script ha sido depurado y probado de forma unitaria:
+* **Resolución de Hoisting en `doPost(e)`:** Se unificó la recepción de datos eliminando funciones duplicadas. Ahora atiende dos ramas:
+  - `accion === "enviarDocumentacionSede"`: Emisión y despacho de correos con PDF vía GmailApp (Panel Admin).
+  - `accion === "registrarAtencionTecnica"` o payload con `codigoTienda`: Recepción de visita de campo.
+* **Manejo de Archivos en la Nube:** Las imágenes en formato Base64 se convierten en archivos reales dentro de una carpeta en Google Drive llamada `"Evidencias Coolbox 2026"` y sus URLs se insertan en la hoja.
+* **Función Puente:** Se implementó `guardarAtencion(payload)` para dar soporte a llamadas ejecutadas bajo `google.script.run`.
+* **Prueba Unitaria Exitosa:** Se ejecutó en el editor de Apps Script la función `probarAtencionUnitaria()` para la tienda `B11`, certificando que se escribieron las 22 columnas en `REGISTRO_MANTENIMIENTO`, se registraron dos activos en `INVENTARIO_EQUIPOS` y se actualizó automáticamente el estado de la sede a `"REALIZADO"` en `DB_TIENDAS`.
+
+---
+
+## 4. ESTADO DE LA APLICACIÓN DE CAMPO TÉCNICA (`/index.html`)
+
+La aplicación móvil de los técnicos cuenta con los siguientes módulos operativos:
+1. **Censo Modular de Hardware:**
+   - Selector dinámico de estaciones de cobro (1 a 4 cajas) con botones de incremento y decremento.
+   - Cada caja despliega 4 periféricos canónicos: CPU POS / All in One, Monitor POS / Pantalla Táctil, Impresora Térmica y Lector de Código de Barras.
+   - Bloque fijo de Infraestructura de Red: Switch de Datos, Router de Conectividad y Estabilizador / PDU.
+   - Bloque fijo de Contingencia en Almacén: Impresora Térmica de Backup y Lector de Backup.
+   - Botón dinámico `[➕ Registrar Activo Adicional]` para ingresar cualquier periférico hallado fuera de catálogo sin romper la base de datos relacional.
+2. **Firmas Digitales Táctiles:**
+   - Dos lienzos interactivos `<canvas>` de 180px con eventos táctiles y de ratón fluidos y botón para limpiar trazo.
+   - Bloque 1: Rúbrica del Técnico Titular (JSERVICE RV).
+   - Bloque 2: Rúbrica del Encargado de Tienda (Coolbox) con campos de texto para Nombre Completo y DNI.
+3. **Registro Fotográfico de Campo:**
+   - Ocho ranuras oficiales numeradas y rotuladas de acuerdo con la Hoja 2 de la Ficha Técnica, con compresión automática a JPEG en el navegador para agilizar el envío móvil.
+4. **Buscador Inteligente de Tiendas y Corrección de Consola:**
+   - Se reemplazó el antiguo desplegable rígido de 3 tiendas por un campo de texto interactivo conectado a un `<datalist id="listaCatalogoTiendas">`.
+   - Se erradicó el error crítico de consola `TypeError: t.codigo.toUpperCase is not a function` envolviendo de forma defensiva las propiedades en `String(...)`.
+   - Ahora el buscador acepta código corto (ej. `B35`), nombre completo de la tienda o ciudad, desplegando de inmediato la tarjeta `#tiendaInfo` con la dirección completa, la ciudad, la insignia metálica de clasificación (Oro, Bronce, etc.) y la cantidad de cajas asignadas.
+
+---
+
+## 5. TAREAS PENDIENTES PARA LA SIGUIENTE SESIÓN
+
+1. **Prueba de Transmisión de Extremo a Extremo:**
+   - Realizar una prueba de guardado real desde la app móvil (`index.html`) seleccionando un local desde el nuevo buscador inteligente y verificando la llegada de datos a Google Sheets y Google Drive.
+2. **Alineación de la Regla de Oro en el Panel Admin:**
+   - En `Control Coolbox Admin/index.html`, corregir el texto de la Ficha Técnica impresa (Línea 7177) que actualmente dice *"ordenamiento de patch cords"*, sustituyéndolo por la política contractual innegociable: *"Inspección física y soplado sin alteración de patch cords (Regla de Oro)"*.
+3. **Control de Versiones y Despliegue Público:**
+   - Crear el archivo `.gitignore` para excluir credenciales y temporales.
+   - Inicializar el repositorio Git local (`git init`, `git add .`, `git commit`).
+   - Crear el repositorio en GitHub y publicar el sistema para su uso en producción antes de la campaña nacional del 15 de septiembre de 2026.

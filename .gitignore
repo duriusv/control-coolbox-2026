@@ -1,0 +1,9 @@
+# Archivos temporales y de sistema
+node_modules/
+*.tmp
+~$*
+Thumbs.db
+.DS_Store
+
+# Bundles exportados de resguardo local
+gits/*.bundle
