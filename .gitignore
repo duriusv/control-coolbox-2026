@@ -1,9 +1,30 @@
-# Archivos temporales y de sistema
-node_modules/
+# ==============================================================================
+# JSERVICE OPS 2026 FOR COOLBOX — REPOSITORIO OFICIAL
+# ARCHIVO DE EXCLUSIÓN GIT (.gitignore)
+# ==============================================================================
+
+# Archivos y carpetas de pruebas temporales
+scratch/
+.tmp.driveupload/
 *.tmp
+
+# Archivos de bloqueo temporal de Microsoft Office
 ~$*
+~$*.docx
+~$*.xlsx
+~$*.pptx
+
+# Archivos de sistema operativo
 Thumbs.db
+ehthumbs.db
+desktop.ini
 .DS_Store
 
-# Bundles exportados de resguardo local
-gits/*.bundle
+# Logs de depuración
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Configuraciones de entorno locales
+.env.local
+.env.*.local

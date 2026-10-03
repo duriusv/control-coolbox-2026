@@ -14,7 +14,7 @@ Esta habilidad define los estándares de arquitectura, directrices de codificaci
 * **Cliente:** Coolbox (RASH PERÚ S.R.L.).
 * **Contratista de Campo:** JSERVICE (Cuadrillas de técnicos desplegados en Perú).
 * **Supervisión Remota:** Andrews Berbesia (Jefe de Operaciones) monitoreando en tiempo real desde Venezuela.
-* **Cobertura Nacional:** 140 tiendas (86 en Lima Metropolitana/Callao y 54 en Provincias).
+* **Cobertura Nacional:** 147 tiendas (88 en Lima Metropolitana/Callao y 59 en Provincias).
 * **Ventana de Ejecución:** Del 15 de septiembre de 2026 al 20 de noviembre de 2026.
 * **Costo de Infraestructura:** **$0.00 USD**. Arquitectura 100% serverless sobre cuotas estándar de Google Workspace.
 * **Plataforma de Usuario:** Web App Mobile-First para navegadores móviles (Chrome en Android, Safari en iOS). Sin apps nativas instaladas.
@@ -31,13 +31,25 @@ Cualquier código, interfaz o flujo generado bajo esta habilidad DEBE cumplir es
 2. 📷 **FOTOGRAFÍAS OBLIGATORIAS DE GABINETE:**
    * El módulo de gabinete exige dos fotos en Base64: `Gabinete Antes` y `Gabinete Después`.
    * El avance o cierre del módulo debe estar bloqueado hasta validar la existencia de ambas imágenes.
-3. 🔍 **ESCANEO INDIVIDUAL OBLIGATORIO (1 A 1):**
-   * El registro de hardware debe ser individual mediante cámara web (`html5-qrcode`) o digitación manual por teclado.
-   * **PROHIBIDO** el escaneo masivo o por lotes sin confirmación previa del equipo. Cada serial capturado debe validar sus atributos (tipo, marca, ubicación, estado) antes de pasar al siguiente.
+3. 🔍 **ESCANEO INDIVIDUAL OBLIGATORIO (1 A 1) Y CENSO ESTRUCTURADO:**
+   * El registro de hardware debe ser individual mediante cámara web (`html5-qrcode`) o digitación manual por teclado en mayúsculas.
+   * En el formulario del técnico, los equipos principales de caja y tienda ya vienen estructurados como tarjetas pre-asignadas con sus nombres fijos. El técnico completa exclusivamente: **Marca**, **Modelo**, **Serie**, **Cód. Inventario** y **Condición**.
+   * Para hardware de caja POS:
+     - **Computadora:** Selector entre `All in One CAJA0X`, `Pc (Desktop)` y `All in One ADMIN` + `HOSTNAME` opcional.
+     - **Monitor:** Selector entre `Monitor Principal` y `Monitor Secundario Dell Vta360`.
+     - **Periféricos de mostrador:** `Ticketera CAJA0X`, `Lector de codigo de barras CAJA0X`, `Gaveta de Dinero CAJA0X`, `Ups / Estabilizador CAJA0X`.
+     - **Biométrico de Tienda:** `Huellero` (tarjeta dedicada con casillas técnicas).
+   * Para terminales móviles PDA: El nombre del equipo (`PDA01`, `PDA02`...) no se digita pues ya viene pre-definido; se capturan `ANYDESK` (ID numérico de soporte remoto), `ANDROID IMEI` (código celular de 15 dígitos) y su estado es `OPERATIVO` o `INOPERATIVO`.
+   * **Regla estricta de omisión:** Dispositivos no presentes en la tienda se dejan en blanco y el sistema omite su inserción (cero filas fantasma).
 4. 🔒 **BLOQUEO DE CONCURRENCIA CON LOCKSERVICE (30 SEGUNDOS):**
    * Todas las operaciones de escritura en Google Sheets deben protegerse con `LockService.getScriptLock()` y un timeout estricto de **30,000 ms**.
 5. 💾 **PERSISTENCIA ANTI-DESCONEXIÓN (OFFLINE-FIRST):**
    * Todo cambio en el frontend debe guardarse de inmediato en `localStorage` del navegador para evitar pérdida de información en cuartos de comunicaciones o sótanos sin señal móvil.
+6. 📊 **EXPORTACIÓN EXCEL OFICIAL CON DOBLE PALETA CROMÁTICA:**
+   * El reporte generado por `[📥 Exportar Censo Excel]` replica exactamente la plantilla corporativa del cliente:
+     - Hoja `Inventario POS`: Columnas A-G con fondo **Azul Suave (`#DDEBF7`)**; Columnas H-Q con fondo **Crema Pastel (`#FFFFF9E6`)**.
+     - Hoja `Inventario PDA`: Columnas A-F con fondo **Azul Suave (`#DDEBF7`)**; Columnas G-O con fondo **Crema Pastel (`#FFFFF9E6`)**.
+     - Solo se exportan tiendas ejecutadas (`REALIZADO` o `CONFORME`).
 
 ---
 
@@ -46,12 +58,12 @@ Cualquier código, interfaz o flujo generado bajo esta habilidad DEBE cumplir es
 ### 3.1 Estructura del Spreadsheet Central
 El backend debe interactuar con un Google Sheet maestro compuesto por tres pestañas obligatorias:
 
-1. `DB_TIENDAS` (Catálogo Maestro):
+1. `DB_TIENDAS` (Catálogo Maestro de 147 tiendas):
    * Columnas: `COD_TIENDA`, `NOMBRE_TIENDA`, `REGION`, `CIUDAD`, `DIRECCION`, `CANT_CAJAS`, `ESTADO_MANT`, `FECHA_EJECUCION`, `TECNICO_LIDER`.
 2. `REGISTRO_MANTENIMIENTO` (Auditorías de Gabinete y Cómputo):
    * Columnas: `ID_MANTENIMIENTO`, `TIMESTAMP`, `COD_TIENDA`, `TECNICO_RESPONSABLE`, `GABINETE_INSPECCION`, `GABINETE_PDU`, `GABINETE_EXTRACTORES`, `FOTO_ANTES_URL`, `FOTO_DESPUES_URL`, `COMPUTO_CHECKLIST`, `TICKETERAS_CHECKLIST`, `PERIFERICOS_CHECKLIST`, `OBSERVACIONES_GENERALES`, `SINCRONIZACION_OFFLINE`.
 3. `INVENTARIO_EQUIPOS` (Activos Tecnológicos Individuales):
-   * Columnas: `ID_INVENTARIO`, `COD_TIENDA`, `TIMESTAMP_REGISTRO`, `TIPO_EQUIPO`, `MARCA`, `MODELO`, `NUMERO_SERIE`, `CODIGO_INVENTARIO`, `UBICACION_CAJA`, `CONDICION_OPERATIVA`, `METODO_CAPTURA`, `TECNICO_REGISTRO`.
+   * Columnas canónicas ampliadas: `ID_INVENTARIO`, `COD_TIENDA`, `TIMESTAMP_REGISTRO`, `TIPO_EQUIPO`, `MARCA`, `MODELO`, `NUMERO_SERIE`, `CODIGO_INVENTARIO`, `UBICACION_CAJA`, `ESTADO_FISICO`, `OPERATIVO`, `HOSTNAME`, `ANYDESK`, `ANDROID_IMEI`, `METODO_CAPTURA`, `TECNICO_REGISTRO`.
 
 ### 3.2 Jerarquía de Carpetas en Google Drive
 Las fotos recibidas en Base64 se almacenan en la siguiente estructura:
@@ -114,9 +126,10 @@ Las fotos recibidas en Base64 se almacenan en la siguiente estructura:
 
 Al generar selectores y validaciones, incluir siempre los modelos homologados:
 * **Ticketeras Térmicas:** Epson TM-T20II, Epson TM-T20III, Epson TM-T20IV, Bixolon (SRP-330 / SRP-350).
-* **Terminales Móviles (PDAs):** Sunmi, Histone, Honeywell, Unitech.
+* **Terminales Móviles (PDAs):** SUNMI, SHIJI, HONEYWELL, UNITECH (4 marcas oficiales del cliente).
 * **Estaciones de Trabajo:** CPU estándar y All-in-One (AIO) HP / Lenovo.
 * **Periféricos:** Gavetas de dinero RJ11/12, Lectores ópticos de barra, Lectores biométricos (huelleros).
+
 
 ---
 

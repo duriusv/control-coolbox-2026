@@ -1,6 +1,6 @@
 ---
 name: coolbox-dashboard-supervisor
-description: Especialista en arquitectura de paneles de control operativo, métricas de mantenimiento e inventario de hardware para JSERVICE RV y Coolbox.
+description: Especialista en arquitectura de paneles de control operativo, métricas de mantenimiento, estandarización de interfaz y censo de hardware para JSERVICE RV y Coolbox.
 ---
 
 # Coolbox Dashboard Supervisor — Especialista en Monitoreo y Auditoría Operativa
@@ -13,11 +13,8 @@ Esta habilidad define los estándares técnicos, directrices de arquitectura de 
 
 * **Cliente Mandante:** Coolbox (RASH PERÚ S.R.L.).
 * **Contratista Responsable:** JSERVICE RV.
-* **Supervisores Clave del Sistema:**
-  * **Jesús Silva (Supervisión Operativa en Perú - JSERVICE RV):** Coordinación en terreno, control de rutas, verificación física de cuadrillas en Lima y Provincias.
-  * **Andrews Berbesia (Jefatura de Operaciones en Venezuela - JSERVICE RV):** Supervisión remota integral en tiempo real, auditoría de métricas, validación de seriales, control de calidad fotográfica y emisión de actas de conformidad.
-* **Universo Operativo:** 140 tiendas a nivel nacional (86 en Lima Metropolitana y Callao, 54 en Provincias).
-* **Alcance Técnico:** Panel de control gerencial y operativo para auditar el avance del mantenimiento preventivo anual y censo de inventario tecnológico.
+* **Supervisores Clave del Sistema:** Jesús Silva (Operativa en Perú) y Andrews Berbesia (Jefatura de Operaciones en Venezuela).
+* **Universo Operativo:** 147 tiendas a nivel nacional (88 en Lima, 59 en Provincias).
 
 ---
 
@@ -28,95 +25,57 @@ Esta habilidad define los estándares técnicos, directrices de arquitectura de 
 > Queda terminantemente **PROHIBIDO** crear, modificar, mover o eliminar cualquier archivo ubicado fuera del directorio `Control Coolbox Admin/`.
 > 
 > * El archivo `index.html` de la raíz corresponde a la Web App móvil de los técnicos de campo y debe permanecer **100% intacto**.
-> * El archivo `spec.md` de la raíz y los scripts de verificación de campo no deben ser alterados.
-> * Todos los artefactos de la solución de supervisión (HTML, CSS, JS, módulos, especificaciones) deben alojarse exclusivamente dentro de `Control Coolbox Admin/`.
 
 ---
 
-## 3. IDENTIDAD VISUAL Y DIRECTRICES DE DISEÑO
+## 3. IDENTIDAD VISUAL, ESTÁNDARES DE BADGES Y TIPOGRAFÍA (INMUTABLE)
 
 El dashboard de supervisión proyecta autoridad técnica, claridad analítica y alta legibilidad de datos para jornadas prolongadas de monitoreo en pantallas de escritorio y tablets.
 
-### 3.1 Paleta Cromática Institucional
-* **Azul Medianoche Principal (`#0A2540`):** Utilizado en cabeceras de jerarquía superior, barras de navegación lateral/superior, títulos de KPIs y acentos de contraste corporativo.
-* **Acento Rojo Coolbox (`#E31B23`):** Utilizado estratégicamente en badges de atención urgente, tiendas con estatus "Observado", alertas críticas, barras de acento y acciones principales destacadas.
-* **Fondo Neutro Analítico (`#F8FAFC`):** Superficie de lienzo limpia que reduce la fatiga visual.
-* **Superficies y Tarjetas (`#FFFFFF`):** Fondos de tarjetas de KPI, tablas y modales con bordes sutiles en `#E2E8F0`.
-* **Semáforo Operativo:**
-  * **Conforme / Exitoso:** Verde Esmeralda (`#10B981` / `#059669`).
-  * **Observado / Alerta:** Rojo Coolbox (`#E31B23`) / Ámbar Preventivo (`#F59E0B`).
-  * **En Proceso:** Azul Cobalto (`#2563EB` / `#3B82F6`).
-  * **Pendiente:** Gris Slate Neutro (`#64748B` / `#94A3B8`).
+### 3.1 Reglas Tipográficas Obligatorias
+* **Mayúsculas Forzadas:** Todos los textos indicadores de estado (`CONFORME`, `OBSERVADO`, `REALIZADO`, `NO INTERVENIDO`, `DE BAJA`, `OPERATIVO`, `INOPERATIVO`, `RENOVACION`) DEBEN renderizarse estrictamente en **MAYÚSCULAS** (`text-transform: uppercase`).
+* **Grosor:** Negrita/semi-negrita consistente (`font-weight: 600` o `700`).
 
-### 3.2 Clasificación de Tiendas (Categorías Coolbox)
-* **Oro:** Acento dorado / amarillo cálido (`#D97706` / fondo `#FEF3C7`).
-* **Platino:** Acento plata metálico / gris azulado (`#475569` / fondo `#F1F5F9`).
-* **Bronce:** Acento bronce cobrizo (`#B45309` / fondo `#FFEDD5`).
+### 3.2 Paleta Cromática Canónica (Cero Desviación)
+Queda terminantemente prohibido utilizar colores en línea arbitrarios (ej. `style="color: #28a745"`). Toda etiqueta debe consumir estrictamente los tokens del sistema:
+* **Éxito (`CONFORME` / `OPERATIVO` / `REALIZADO`):** Fondo `#D1FAE5 !important;`, Texto `#065F46 !important;`, Borde `1px solid #A7F3D0 !important;`.
+* **Advertencia (`OBSERVADO` / `PARCIAL`):** Fondo `#FEF3C7 !important;`, Texto `#92400E !important;`, Borde `1px solid #FDE68A !important;`.
+* **Neutro (`NO INTERVENIDO` / `PENDIENTE`):** Fondo `#F1F5F9 !important;`, Texto `#475569 !important;`, Borde `1px solid #CBD5E1 !important;`.
+* **Crítico (`DE BAJA` / `RETIRADO` / `INOPERATIVO`):** Fondo `#FEE2E2 !important;`, Texto `#991B1B !important;`, Borde `1px solid #FCA5A5 !important;`.
 
----
+### 3.3 Control de Anchos y Prevención de Desbordes
+* **Clase Maestra `.badge-status`:** Debe incluir `box-sizing: border-box !important; max-width: 100% !important; white-space: nowrap !important; font-size: 0.65rem !important; padding: 2px 6px !important; border-radius: 4px !important;`.
+* **Badge Compacto `.badge-no-intervenido`:** Configurado a `font-size: 0.60rem !important; padding: 1px 4px !important;`.
+* **Celdas de Tablas en Informes (.acta-table, .ficha-table):** Columna de estado con ancho protegido de `min-width: 115px !important; width: 15% !important;` para contener `NO INTERVENIDO` sin invadir observaciones.
 
-## 4. ENFOQUE DE DISPOSITIVO: DESKTOP & TABLET
-
-A diferencia de la aplicación móvil de los técnicos, el dashboard de supervisión está concebido como una estación de trabajo ejecutiva:
-
-1. **Resoluciones Objetivo:**
-   * **Desktop Estándar y Panorámico:** $\ge 1280\text{px}$ (1366x768, 1920x1080).
-   * **Tablet en Modo Horizontal (Landscape):** $\ge 1024\text{px}$ (iPad Pro, Galaxy Tab).
-2. **Densidad de Información Optimizada:**
-   * Vista condensada de tablas con alto contraste para evaluar decenas de tiendas por pantalla sin scroll excesivo.
-   * Paneles colapsables y modales flotantes amplios ($90\%$ de ancho en tablet, máx $1100\text{px}$ en desktop).
-3. **Ergonomía de Control:**
-   * Atajos rápidos por teclado (escape para cerrar modales, enter para filtrar).
-   * Búsqueda en vivo con respuesta en menos de 100 milisegundos sobre memoria RAM local.
-   * Exportación instantánea de actas al portapapeles con un clic.
+### 3.4 Limpieza del DOM
+* Prohibido renderizar filas estáticas no auditadas en checklists (removida la fila fantasma de `"Switch / Router Inspeccionado"`).
 
 ---
 
-## 5. ARQUITECTURA DE DATOS Y FLUJO DE LECTURA
+## 4. ESTRUCTURA MODULAR DEL PANEL
 
-### 5.1 Origen de Datos (Google Sheets)
-El panel se alimenta en modo de sólo lectura (`read-only`) de las 3 entidades centrales del proyecto:
-1. `DB_TIENDAS`: Catálogo de las 140 sedes, ubicación, clasificación y estatus general.
-2. `HISTORIAL_ATENCIONES`: Registro temporal de visitas, checklists de gabinete/cómputo y enlaces de evidencia fotográfica en Google Drive.
-3. `INVENTARIO_GENERAL`: Censo consolidado de activos de hardware censados por número de serie.
+Todo desarrollo dentro de `Control Coolbox Admin/` debe articularse en 5 bloques funcionales:
+1. `[BLOQUE 1: PANEL SUPERIOR DE KPIS]` (Progreso global sobre 147 tiendas: Realizados, Parciales, Pendientes).
+2. `[BLOQUE 2: BARRA DE BÚSQUEDA Y FILTROS COMBINADOS]`
+3. `[BLOQUE 3: TABLA INTERACTIVA DE SEGUIMIENTO Y GESTIÓN DE ACTIVOS]` (Con selectores de vista rápida: `[Todos]`, `[POS / Cajas]`, `[PDAs / Handhelds]`).
+4. `[BLOQUE 4: MODAL DE AUDITORÍA PROFUNDA Y VISTAS IMPRESAS A4]`
+5. `[BLOQUE 5: MÓDULO INTEGRADO DE EDICIÓN Y EXPORTADOR OFICIAL EXCEL]`
+   * Generación de libro `.xlsx` idéntico a `Inventario_Equipos_Tiendas.xlsx`:
+     - Hoja 1: `Inventario POS` (17 columnas: Cols A-G en Azul Suave `#DDEBF7`, Cols H-Q en Crema Pastel `#FFFFF9E6`, evaluando `ESTADO`: Bueno/Regular/Malo/No existe y `OPERATIVO`: Sí/No).
+     - Hoja 2: `Inventario PDA` (15 columnas: Cols A-F en Azul Suave `#DDEBF7`, Cols G-O en Crema Pastel `#FFFFF9E6`, marcas SUNMI/SHIJI/HONEYWELL/UNITECH, `ANYDESK`, `ANDROID IMEI`, `ESTADO`: OPERATIVO/INOPERATIVO).
+     - Hoja 3: Catálogo `PDA` (17 columnas).
+     - Fórmulas de fila 3 y 4 intactas y exportación exclusiva de tiendas ejecutadas (`REALIZADO` / `CONFORME`).
+   * Módulo de Edición de Reporte:
+     - Permite corregir o registrar censo de hardware incorporando columna 'Red / Soporte' para Hostname (POS) y AnyDesk / Android IMEI (PDA).
+     - Preserva intactos todos los metadatos relacionales (16 columnas canónicas) al guardar cambios hacia Google Sheets.
 
-### 5.2 Estrategia de Rendimiento
-* **Carga Inicial Única (Hydration):** Descarga del dataset comprimido al inicializar la sesión.
-* **Filtrado Reactivo en Memoria:** Las consultas por técnico, ciudad, clasificación o estado operan sobre arrays en JavaScript (`Array.prototype.filter`), garantizando latencia cero sin saturar la cuota de Apps Script.
-* **Caché en Sesión (`sessionStorage`):** Almacenamiento temporal para evitar solicitudes redundantes, con botón explícito de actualización forzada (`Actualizar Datos`).
-
----
-
-## 6. ESTRUCTURA MODULAR DEL PANEL
-
-Todo desarrollo dentro de `Control Coolbox Admin/` debe articularse en 4 bloques funcionales:
-
-```
-+-----------------------------------------------------------------------------------+
-|                   CONTROL COOLBOX ADMIN — SISTEMA DE SUPERVISIÓN                  |
-+-----------------------------------------------------------------------------------+
-|  [BLOQUE 1: PANEL SUPERIOR DE KPIS]                                               |
-|  - % Progreso Global | Tiendas Atendidas vs Pendientes | Total Hardware | % Calidad|
-+-----------------------------------------------------------------------------------+
-|  [BLOQUE 2: BARRA DE BÚSQUEDA Y FILTROS COMBINADOS]                               |
-|  - Buscador General | Filtro Técnico | Filtro Ciudad | Filtro Categoría | Reset   |
-+-----------------------------------------------------------------------------------+
-|  [BLOQUE 3: TABLA INTERACTIVA DE SEGUIMIENTO]                                     |
-|  - Código | Tienda | Ciudad | Clasif. | Técnico | Fecha | Equipos | Estado | Acción|
-+-----------------------------------------------------------------------------------+
-|  [BLOQUE 4: MODAL DE AUDITORÍA PROFUNDA (Overlay)]                                |
-|  - Info Tienda | Checklists Gabinete | Tabla Seriales | Fotos Duales | Generador  |
-+-----------------------------------------------------------------------------------+
-```
 
 ---
 
-## 7. CHECKLIST DE CONFORMIDAD DEL SUPERVISOR
-
-Antes de certificar cualquier componente del panel de supervisión, validar:
+## 5. CHECKLIST DE CONFORMIDAD DEL SUPERVISOR
 - [ ] ¿El código se encuentra estrictamente dentro de `Control Coolbox Admin/`?
-- [ ] ¿Se respetó al 100% la intangibilidad del `index.html` de los técnicos en la raíz?
-- [ ] ¿Los colores respetan la tríada: `#0A2540` (Azul Medianoche), `#E31B23` (Rojo Coolbox) y `#F8FAFC` (Fondo)?
-- [ ] ¿La interfaz responde fluidamente en resoluciones de Tablet y Desktop ($\ge 1024\text{px}$)?
-- [ ] ¿El modal de auditoría permite inspeccionar las fotos 'Antes' y 'Después' sin romper la página?
-- [ ] ¿El generador de actas genera un texto formateado listo para enviar por correo institucional?
+- [ ] ¿Todos los badges y estados están en MAYÚSCULAS y en negrita (`font-weight: 600`)?
+- [ ] ¿El color verde de éxito es exactamente `#065F46` sobre fondo `#D1FAE5` sin estilos inline?
+- [ ] ¿La pastilla `NO INTERVENIDO` se contiene dentro de su celda de 115px sin desbordarse?
+- [ ] ¿Se eliminó completamente del Checklist la fila no auditada `Switch / Router Inspeccionado`?
