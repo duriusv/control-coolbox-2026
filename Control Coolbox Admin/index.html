@@ -8842,9 +8842,9 @@
       } else if (norm.includes('RENOVACION') || norm.includes('RENOVACIÓN') || norm.includes('POR RENOVAR')) {
         clase = 'badge-status-observado';
         texto = 'RENOVACIÓN';
-      } else if (norm.includes('RETIRADO') || norm.includes('BAJA') || norm.includes('DE BAJA')) {
+      } else if (norm.includes('RETIRADO') || norm.includes('RETIRAR') || norm.includes('BAJA') || norm.includes('DE BAJA')) {
         clase = 'badge-status-baja';
-        texto = 'DE BAJA / RETIRADO';
+        texto = 'PARA RETIRAR';
       } else if (norm.includes('INOPERATIVO') || norm.includes('FALLA')) {
         clase = 'badge-status-baja';
         texto = 'INOPERATIVO';
@@ -9052,12 +9052,12 @@
      * Normaliza y homologa las variaciones de condición provenientes de la columna K de Sheets.
      * Evita reseteos accidentales a 'OPERATIVO' en la lista desplegable de Edición Reporte.
      * @param {string} condicionRaw - Valor leído de la Columna K (CONDICION)
-     * @returns {string} Valor canónico exacto para el select: 'OPERATIVO' | 'INOPERATIVO' | 'RENOVACION' | 'DE BAJA / RETIRADO'
+     * @returns {string} Valor canónico exacto para el select: 'OPERATIVO' | 'INOPERATIVO' | 'RENOVACION' | 'PARA RETIRAR'
      */
     function normalizarCondicionActivo(condicionRaw) {
       const c = String(condicionRaw || '').trim().toUpperCase();
-      if (c.includes('RETIRADO') || c.includes('BAJA')) {
-        return 'DE BAJA / RETIRADO';
+      if (c.includes('RETIRADO') || c.includes('RETIRAR') || c.includes('BAJA')) {
+        return 'PARA RETIRAR';
       }
       if (c.includes('RENOVACION') || c.includes('POR RENOVAR') || c.includes('CAMBIO') || c.includes('OBSOLETO')) {
         return 'RENOVACION';
@@ -10870,7 +10870,7 @@
       // 5. Baja / Retirado: Condición pura de desincorporación
       const bajaRetiradoCount = activos.filter(item => {
         const cond = normalizarTexto(item.condicion || item.CONDICION || item.estado);
-        return cond === 'DE BAJA / RETIRADO' || cond.includes('BAJA') || cond.includes('RETIRADO');
+        return cond === 'DE BAJA / RETIRADO' || cond === 'PARA RETIRAR' || cond.includes('BAJA') || cond.includes('RETIRAR');
       }).length;
 
       // 6. Sin N° Serie (S/N) y/o Sin Código Patrimonial (S/C): Huérfanos de rotulado
@@ -12437,7 +12437,7 @@
             const ubicacionEq = escapeHtmlSafe(e.ubicacion || e.UBICACION_CAJA || e.ubicacionCaja || "Caja / Tienda");
             const condUpper = String(e.condicion || e.CONDICION || e.estado || e.ESTADO || "OPERATIVO").toUpperCase().trim();
             let badgeClass = "badge-operativo"; // verde
-            if (condUpper.includes("BAJA") || condUpper.includes("RETIRADO")) {
+            if (condUpper.includes("BAJA") || condUpper.includes("RETIRADO") || condUpper.includes("RETIRAR")) {
               badgeClass = "badge-condicion-baja"; // rojo granate
             } else if (condUpper.includes("INOPERATIVO") || condUpper.includes("FALLA")) {
               badgeClass = "badge-inoperativo"; // rojo
@@ -13424,11 +13424,11 @@
         filasCensoActa = equipos.map((eq, i) => {
           const tipo = eq.tipo || eq.tipoEquipo || eq.dispositivo || "Equipo POS";
           const marcaMod = `${eq.marca || "GENÉRICO"} ${eq.modelo || "ESTÁNDAR"}`.trim();
-          const numSerie = eq.serie || eq.SERIE || eq.numeroSerie || "S/N";
-          const codPatr = eq.codInventario || eq.codigoInventario || eq.codigoPatrimonial || eq.CODIGO_ACTIVO || "-";
+          const codPatrRaw = String(eq.codInventario || eq.codigoInventario || eq.codigoPatrimonial || eq.CODIGO_ACTIVO || "").trim();
+          const codPatr = (!codPatrRaw || codPatrRaw === "-") ? "S/C" : codPatrRaw;
           const condUpper = String(eq.condicion || eq.estado || "OPERATIVO").toUpperCase();
           let badgeClass = "badge-operativo"; // verde
-          if (condUpper.includes("BAJA") || condUpper.includes("RETIRADO")) {
+          if (condUpper.includes("BAJA") || condUpper.includes("RETIRADO") || condUpper.includes("RETIRAR")) {
             badgeClass = "badge-condicion-baja"; // rojo granate
           } else if (condUpper.includes("INOPERATIVO")) {
             badgeClass = "badge-inoperativo"; // rojo
@@ -15137,7 +15137,7 @@
               const esPda = tipoEq.toUpperCase().includes("PDA") || ubicEq.toUpperCase().includes("PDA") || Boolean(eq.anydesk || eq.androidImei);
 
               if (esPda) {
-                const pdaEstado = (condUpper.includes("INOPERATIVO") || condUpper.includes("FALLA") || condUpper.includes("MALO")) ? "INOPERATIVO" : "OPERATIVO";
+                const pdaEstado = (condUpper.includes("INOPERATIVO") || condUpper.includes("FALLA") || condUpper.includes("MALO") || condUpper.includes("BAJA") || condUpper.includes("RETIRAR") || condUpper.includes("RETIRAD")) ? "INOPERATIVO" : "OPERATIVO";
                 const rP = wsPda.getRow(rowPdaIdx);
                 rP.height = 20;
 
@@ -15184,9 +15184,15 @@
               } else {
                 let estadoFisico = eq.estadoFisico || "Bueno";
                 let operativo = eq.operativo || "Sí";
-                if (condUpper.includes("INOPERATIVO") || condUpper.includes("MALO") || condUpper.includes("FALLA") || condUpper.includes("BAJA") || condUpper.includes("RETIRAD")) {
+                let obsFinal = obs;
+                if (condUpper.includes("INOPERATIVO") || condUpper.includes("MALO") || condUpper.includes("FALLA") || condUpper.includes("BAJA") || condUpper.includes("RETIRAD") || condUpper.includes("RETIRAR")) {
                   estadoFisico = "Malo";
                   operativo = "No";
+                  if (condUpper.includes("RETIRAR") || condUpper.includes("BAJA")) {
+                    if (!obsFinal.includes("PARA RETIRAR")) {
+                      obsFinal = obsFinal ? (obsFinal + " [EQUIPO PARA RETIRAR POR AVERÍA]") : "[EQUIPO PARA RETIRAR POR AVERÍA]";
+                    }
+                  }
                 } else if (condUpper.includes("RENOV") || condUpper.includes("REGULAR") || condUpper.includes("OBS")) {
                   estadoFisico = "Regular";
                 }
@@ -15223,7 +15229,7 @@
                 rO.getCell(14).value = operativo;
                 rO.getCell(15).value = resp;
                 rO.getCell(16).value = fechaAud;
-                rO.getCell(17).value = obs;
+                rO.getCell(17).value = obsFinal;
 
 
                 for (let c = 1; c <= 17; c++) {
@@ -15965,10 +15971,11 @@
         const marca = eq.marca || eq.MARCA || "-";
         const modelo = eq.modelo || eq.MODELO || "-";
         const serie = eq.serie || eq.SERIE || eq.numeroSerie || "-";
-        const codigoInv = eq.codInventario || eq.codigoInventario || eq.CODIGO_ACTIVO || "-";
+        const codInvRaw = String(eq.codInventario || eq.codigoInventario || eq.CODIGO_ACTIVO || "").trim();
+        const codigoInv = (!codInvRaw || codInvRaw === "-") ? "S/C" : codInvRaw;
         const condUpper = String(eq.condicion || eq.CONDICION || eq.estado || eq.ESTADO || "OPERATIVO").toUpperCase().trim();
         let badgeClass = "badge-operativo"; // verde
-        if (condUpper.includes("BAJA") || condUpper.includes("RETIRADO")) {
+        if (condUpper.includes("BAJA") || condUpper.includes("RETIRADO") || condUpper.includes("RETIRAR")) {
           badgeClass = "badge-condicion-baja"; // rojo granate
         } else if (condUpper.includes("INOPERATIVO")) {
           badgeClass = "badge-inoperativo"; // rojo
@@ -18068,8 +18075,8 @@ async function sincronizarDatosReales(esSegundoPlano = false) {
         var hostname = String(item.hostname || item.HOSTNAME || "").trim().toUpperCase();
         var anydesk = String(item.anydesk || item.ANYDESK || "").trim();
         var androidImei = String(item.androidImei || item.ANDROID_IMEI || item.imei || "").trim();
-        var estadoFisico = String(item.estadoFisico || item.ESTADO_FISICO || (condicion === "INOPERATIVO" ? "Malo" : (condicion === "RENOVACION" ? "Regular" : "Bueno"))).trim();
-        var operativo = String(item.operativo || item.OPERATIVO || (condicion === "INOPERATIVO" ? "No" : "Sí")).trim();
+        var estadoFisico = String(item.estadoFisico || item.ESTADO_FISICO || ((condicion === "INOPERATIVO" || condicion === "PARA RETIRAR" || condicion === "DE BAJA / RETIRADO") ? "Malo" : (condicion === "RENOVACION" ? "Regular" : "Bueno"))).trim();
+        var operativo = String(item.operativo || item.OPERATIVO || ((condicion === "INOPERATIVO" || condicion === "PARA RETIRAR" || condicion === "DE BAJA / RETIRADO") ? "No" : "Sí")).trim();
 
         return {
           tipo: tipo,
@@ -19135,7 +19142,7 @@ async function sincronizarDatosReales(esSegundoPlano = false) {
       "OPERATIVO",
       "INOPERATIVO",
       "RENOVACION",
-      "DE BAJA / RETIRADO"
+      "PARA RETIRAR"
     ];
 
     var TIPOS_EQUIPO_OFICIALES = [
@@ -19316,9 +19323,15 @@ async function sincronizarDatosReales(esSegundoPlano = false) {
         tipoOpts += "<option value=\"" + esc(tipoVal) + "\" selected>" + esc(tipoVal) + "</option>";
       }
 
+      var condEnLista = false;
       var condOpts = condList.map(function(c) {
+        if (valorEstado === c) condEnLista = true;
         return "<option value=\"" + c + "\"" + (valorEstado === c ? " selected" : "") + ">" + c + "</option>";
       }).join("");
+
+      if (!condEnLista && valorEstado) {
+        condOpts += "<option value=\"" + esc(valorEstado) + "\" selected>" + esc(valorEstado) + "</option>";
+      }
 
       // Celda adaptable para Red / Soporte
       var celdaRedSoporte = "";
@@ -19355,7 +19368,7 @@ async function sincronizarDatosReales(esSegundoPlano = false) {
         "</td>" +
         "<td style=\"padding:4px 6px;\"><input type=\"text\" id=\"edit-censo-modelo-" + idx + "\" class=\"edicion-input-cell edit-input-cell edit-input-upper\" data-campo=\"MODELO\" data-idx=\"" + idx + "\" value=\"" + modelo + "\" placeholder=\"Modelo\" style=\"text-transform: uppercase;\" oninput=\"this.value = this.value.toUpperCase()\"></td>" +
         "<td style=\"padding:4px 6px;\"><input type=\"text\" id=\"edit-censo-serie-" + idx + "\" class=\"edicion-input-cell edit-input-cell edit-input-upper\" data-campo=\"NUMERO_SERIE\" data-idx=\"" + idx + "\" value=\"" + serie + "\" placeholder=\"S/N\" style=\"text-transform: uppercase;\" oninput=\"this.value = this.value.toUpperCase()\"></td>" +
-        "<td style=\"padding:4px 6px;\"><input type=\"text\" id=\"edit-censo-codinv-" + idx + "\" class=\"edicion-input-cell edit-input-cell edit-input-upper\" data-campo=\"COD_INVENTARIO\" data-idx=\"" + idx + "\" value=\"" + codInv + "\" placeholder=\"Cod.Inv\" style=\"text-transform: uppercase;\" oninput=\"this.value = this.value.toUpperCase()\"></td>" +
+        "<td style=\"padding:4px 6px;\"><input type=\"text\" id=\"edit-censo-codinv-" + idx + "\" class=\"edicion-input-cell edit-input-cell edit-input-upper\" data-campo=\"COD_INVENTARIO\" data-idx=\"" + idx + "\" value=\"" + codInv + "\" placeholder=\"Cód. Inv (o S/C)\" list=\"sugerencias-cod-inventario\" style=\"text-transform: uppercase;\" oninput=\"this.value = this.value.toUpperCase()\"></td>" +
         "<td style=\"padding:4px 6px;min-width:130px;\">" + celdaRedSoporte + "</td>" +
         "<td style=\"padding:4px 6px;\"><select id=\"edit-censo-cond-" + idx + "\" class=\"edicion-select-cond edit-select-cond\" data-campo=\"CONDICION\" data-idx=\"" + idx + "\">" + condOpts + "</select></td>" +
         "<td style=\"padding:4px 6px;text-align:center;\">" +
@@ -20066,6 +20079,9 @@ async function sincronizarDatosReales(esSegundoPlano = false) {
           "<option value=\"SHIJI\"></option>" +
           "<option value=\"HONEYWELL\"></option>" +
           "<option value=\"UNITECH\"></option>" +
+        "</datalist>" +
+        "<datalist id=\"sugerencias-cod-inventario\">" +
+          "<option value=\"S/C\">S/C (Sin Código Patrimonial)</option>" +
         "</datalist>" +
         "<div style=\"overflow-x:auto;\">" +
         "<table id=\"tablaCensoActivosEdicion\" class=\"edicion-tabla-equipos edit-tabla-equipos\" style=\"width:100%;border-collapse:collapse;font-size:0.83rem;\">" +

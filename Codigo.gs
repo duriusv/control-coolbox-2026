@@ -627,14 +627,14 @@ function doGet(e) {
         const cond = inv.condicion;
         inv.estadoFisico = String(inv.ESTADO_FISICO || filaI[11] || "").trim();
         if (!inv.estadoFisico) {
-          if (cond === "INOPERATIVO" || cond === "DE BAJA / RETIRADO") inv.estadoFisico = "Malo";
+          if (cond === "INOPERATIVO" || cond === "DE BAJA / RETIRADO" || cond === "PARA RETIRAR" || cond.includes("RETIRAR") || cond.includes("BAJA")) inv.estadoFisico = "Malo";
           else if (cond === "RENOVACION") inv.estadoFisico = "Regular";
           else inv.estadoFisico = "Bueno";
         }
 
         inv.operativo = String(inv.OPERATIVO || filaI[12] || "").trim();
         if (!inv.operativo) {
-          if (cond === "INOPERATIVO" || cond === "DE BAJA / RETIRADO") inv.operativo = "No";
+          if (cond === "INOPERATIVO" || cond === "DE BAJA / RETIRADO" || cond === "PARA RETIRAR" || cond.includes("RETIRAR") || cond.includes("BAJA")) inv.operativo = "No";
           else inv.operativo = "Sí";
         }
 
@@ -1007,14 +1007,14 @@ function procesarAtencionTecnicaCompleta(payload) {
 
             let estadoFisico = String(eq.estadoFisico || eq.estado_fisico || "").trim();
             if (!estadoFisico) {
-              if (condicionRaw === "INOPERATIVO" || condicionRaw === "DE BAJA / RETIRADO") estadoFisico = "Malo";
+              if (condicionRaw === "INOPERATIVO" || condicionRaw === "DE BAJA / RETIRADO" || condicionRaw === "PARA RETIRAR" || condicionRaw.includes("RETIRAR") || condicionRaw.includes("BAJA")) estadoFisico = "Malo";
               else if (condicionRaw === "RENOVACION") estadoFisico = "Regular";
               else estadoFisico = "Bueno";
             }
 
             let esOperativo = String(eq.operativo || "").trim();
             if (!esOperativo) {
-              if (condicionRaw === "INOPERATIVO" || condicionRaw === "DE BAJA / RETIRADO") esOperativo = "No";
+              if (condicionRaw === "INOPERATIVO" || condicionRaw === "DE BAJA / RETIRADO" || condicionRaw === "PARA RETIRAR" || condicionRaw.includes("RETIRAR") || condicionRaw.includes("BAJA")) esOperativo = "No";
               else esOperativo = "Sí";
             }
 
@@ -1244,14 +1244,14 @@ function actualizarReporteAdmin(payload) {
 
           let estadoFisico = String(eq.estadoFisico || eq.estado_fisico || "").trim();
           if (!estadoFisico) {
-            if (condicionRaw === "INOPERATIVO" || condicionRaw === "DE BAJA / RETIRADO") estadoFisico = "Malo";
+            if (condicionRaw === "INOPERATIVO" || condicionRaw === "DE BAJA / RETIRADO" || condicionRaw === "PARA RETIRAR" || condicionRaw.includes("RETIRAR") || condicionRaw.includes("BAJA")) estadoFisico = "Malo";
             else if (condicionRaw === "RENOVACION") estadoFisico = "Regular";
             else estadoFisico = "Bueno";
           }
 
           let esOperativo = String(eq.operativo || "").trim();
           if (!esOperativo) {
-            if (condicionRaw === "INOPERATIVO" || condicionRaw === "DE BAJA / RETIRADO") esOperativo = "No";
+            if (condicionRaw === "INOPERATIVO" || condicionRaw === "DE BAJA / RETIRADO" || condicionRaw === "PARA RETIRAR" || condicionRaw.includes("RETIRAR") || condicionRaw.includes("BAJA")) esOperativo = "No";
             else esOperativo = "Sí";
           }
 

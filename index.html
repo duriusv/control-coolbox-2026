@@ -2260,6 +2260,11 @@
               </div>
             </div>
 
+            <!-- SUGERENCIAS DESPLEGABLES HYBRID PARA CODIGO PATRIMONIAL -->
+            <datalist id="listaSugerenciasPatrimonial">
+              <option value="S/C">S/C (Sin Código)</option>
+            </datalist>
+
             <!-- CONTENEDOR DE CAJAS DINAMICAS (1 A 4) -->
             <div class="censo-group-title">🛒 Estaciones de Cobro (Cajas POS)</div>
             <div id="contenedorCajasCenso"></div>
@@ -6003,7 +6008,7 @@
                     <option value="OPERATIVO" ${valCond === "OPERATIVO" ? "selected" : ""}>OPERATIVO</option>
                     <option value="INOPERATIVO" ${valCond === "INOPERATIVO" ? "selected" : ""}>INOPERATIVO</option>
                     <option value="RENOVACION" ${valCond === "RENOVACION" ? "selected" : ""}>RENOVACION</option>
-                    <option value="DE BAJA / RETIRADO" ${valCond === "DE BAJA / RETIRADO" ? "selected" : ""}>DE BAJA / RETIRADO</option>
+                    <option value="PARA RETIRAR" ${valCond === "PARA RETIRAR" || valCond === "DE BAJA / RETIRADO" ? "selected" : ""}>PARA RETIRAR</option>
                   </select>
                 </div>
               </div>
@@ -6015,7 +6020,7 @@
                 <div class="censo-input-row">
                   <input type="text" id="${prefix}_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(valSerie)}" oninput="guardarBorrador(); actualizarContadorCenso();">
                   <button type="button" class="btn-scan-compact" onclick="abrirEscaner('${prefix}_serie')">📷</button>
-                  <input type="text" id="${prefix}_patr" class="input-uppercase" placeholder="Cód. Patrimonial" value="${escapeHtmlAttr(valPatr)}" oninput="guardarBorrador(); actualizarContadorCenso();">
+                  <input type="text" id="${prefix}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(valPatr)}" oninput="guardarBorrador(); actualizarContadorCenso();">
                   <button type="button" class="btn-scan-compact" onclick="abrirEscaner('${prefix}_patr')">📷</button>
                 </div>
                 ${extraRowHtml}
@@ -6057,7 +6062,7 @@
                   <option value="OPERATIVO">OPERATIVO</option>
                   <option value="INOPERATIVO">INOPERATIVO</option>
                   <option value="RENOVACION">RENOVACION</option>
-                  <option value="DE BAJA / RETIRADO">DE BAJA / RETIRADO</option>
+                  <option value="PARA RETIRAR">PARA RETIRAR</option>
                 </select>
               </div>
               <div class="censo-item-grid">
@@ -6068,7 +6073,7 @@
                 <div class="censo-input-row">
                   <input type="text" id="${eq.id}_serie" class="input-uppercase" placeholder="N° de Serie" oninput="guardarBorrador(); actualizarContadorCenso();">
                   <button type="button" class="btn-scan-compact" onclick="abrirEscaner('${eq.id}_serie')">📷</button>
-                  <input type="text" id="${eq.id}_patr" class="input-uppercase" placeholder="Cód. Patrimonial" oninput="guardarBorrador(); actualizarContadorCenso();">
+                  <input type="text" id="${eq.id}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" oninput="guardarBorrador(); actualizarContadorCenso();">
                   <button type="button" class="btn-scan-compact" onclick="abrirEscaner('${eq.id}_patr')">📷</button>
                 </div>
               </div>
@@ -6113,7 +6118,7 @@
                   <option value="OPERATIVO" ${condVal === "OPERATIVO" ? "selected" : ""}>OPERATIVO</option>
                   <option value="INOPERATIVO" ${condVal === "INOPERATIVO" ? "selected" : ""}>INOPERATIVO</option>
                   <option value="RENOVACION" ${condVal === "RENOVACION" ? "selected" : ""}>RENOVACION</option>
-                  <option value="DE BAJA / RETIRADO" ${condVal === "DE BAJA / RETIRADO" ? "selected" : ""}>DE BAJA / RETIRADO</option>
+                  <option value="PARA RETIRAR" ${condVal === "PARA RETIRAR" || condVal === "DE BAJA / RETIRADO" ? "selected" : ""}>PARA RETIRAR</option>
                   <option value="NO TIENE" ${condVal === "NO TIENE" ? "selected" : ""}>NO TIENE</option>
                 </select>
               </div>
@@ -6131,7 +6136,7 @@
                 <div class="censo-input-row">
                   <input type="text" id="admin_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(serVal)}" oninput="actualizarDatoAdmin('serie', this.value); actualizarContadorCenso();">
                   <button type="button" class="btn-scan-compact" onclick="abrirEscaner('admin_serie')">📷</button>
-                  <input type="text" id="admin_patr" class="input-uppercase" placeholder="Cód. Patrimonial" value="${escapeHtmlAttr(patrVal)}" oninput="actualizarDatoAdmin('codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
+                  <input type="text" id="admin_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(patrVal)}" oninput="actualizarDatoAdmin('codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
                   <button type="button" class="btn-scan-compact" onclick="abrirEscaner('admin_patr')">📷</button>
                 </div>
                 <div class="censo-input-row" style="margin-top: 4px;">
@@ -6174,7 +6179,7 @@
                   <option value="OPERATIVO" ${condVal === "OPERATIVO" ? "selected" : ""}>OPERATIVO</option>
                   <option value="INOPERATIVO" ${condVal === "INOPERATIVO" ? "selected" : ""}>INOPERATIVO</option>
                   <option value="RENOVACION" ${condVal === "RENOVACION" ? "selected" : ""}>RENOVACION</option>
-                  <option value="DE BAJA / RETIRADO" ${condVal === "DE BAJA / RETIRADO" ? "selected" : ""}>DE BAJA / RETIRADO</option>
+                  <option value="PARA RETIRAR" ${condVal === "PARA RETIRAR" || condVal === "DE BAJA / RETIRADO" ? "selected" : ""}>PARA RETIRAR</option>
                 </select>
               </div>
             </div>
@@ -6186,7 +6191,7 @@
               <div class="censo-input-row">
                 <input type="text" id="huellero_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(serVal)}" oninput="actualizarDatoHuellero('serie', this.value); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('huellero_serie')">📷</button>
-                <input type="text" id="huellero_patr" class="input-uppercase" placeholder="Cód. Patrimonial" value="${escapeHtmlAttr(patrVal)}" oninput="actualizarDatoHuellero('codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
+                <input type="text" id="huellero_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(patrVal)}" oninput="actualizarDatoHuellero('codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('huellero_patr')">📷</button>
               </div>
             </div>
@@ -6240,7 +6245,7 @@
               <div class="censo-input-row">
                 <input type="text" id="pda_${idx}_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(pda.serie || '')}" oninput="actualizarDatoPda(${idx}, 'serie', this.value); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('pda_${idx}_serie')">📷</button>
-                <input type="text" id="pda_${idx}_patr" class="input-uppercase" placeholder="Cód. Patrimonial" value="${escapeHtmlAttr(pda.codInventario || '')}" oninput="actualizarDatoPda(${idx}, 'codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
+                <input type="text" id="pda_${idx}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(pda.codInventario || '')}" oninput="actualizarDatoPda(${idx}, 'codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('pda_${idx}_patr')">📷</button>
               </div>
               <div class="censo-input-row" style="margin-top: 4px;">
@@ -6323,7 +6328,7 @@
                   <option value="OPERATIVO" ${inp.condicion === "OPERATIVO" ? "selected" : ""}>OPERATIVO</option>
                   <option value="INOPERATIVO" ${inp.condicion === "INOPERATIVO" ? "selected" : ""}>INOPERATIVO</option>
                   <option value="RENOVACION" ${inp.condicion === "RENOVACION" ? "selected" : ""}>RENOVACION</option>
-                  <option value="DE BAJA / RETIRADO" ${inp.condicion === "DE BAJA / RETIRADO" ? "selected" : ""}>DE BAJA / RETIRADO</option>
+                  <option value="PARA RETIRAR" ${inp.condicion === "PARA RETIRAR" || inp.condicion === "DE BAJA / RETIRADO" ? "selected" : ""}>PARA RETIRAR</option>
                 </select>
                 <button type="button" style="background: #FEE2E2; border: 1px solid #FCA5A5; color: #DC2626; border-radius: 4px; padding: 2px 6px; font-size: 0.72rem; cursor: pointer;" onclick="eliminarInalambricaTienda(${idx})" title="Eliminar Impresora">🗑️</button>
               </div>
@@ -6336,7 +6341,7 @@
               <div class="censo-input-row">
                 <input type="text" id="inal_${idx}_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(inp.serie || '')}" oninput="actualizarDatoInalambrica(${idx}, 'serie', this.value); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('inal_${idx}_serie')">📷</button>
-                <input type="text" id="inal_${idx}_patr" class="input-uppercase" placeholder="Cód. Patrimonial" value="${escapeHtmlAttr(inp.codInventario || '')}" oninput="actualizarDatoInalambrica(${idx}, 'codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
+                <input type="text" id="inal_${idx}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(inp.codInventario || '')}" oninput="actualizarDatoInalambrica(${idx}, 'codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('inal_${idx}_patr')">📷</button>
               </div>
             </div>
@@ -6409,7 +6414,7 @@
                   <option value="OPERATIVO" ${inp.condicion === "OPERATIVO" || !inp.condicion ? "selected" : ""}>OPERATIVO</option>
                   <option value="INOPERATIVO" ${inp.condicion === "INOPERATIVO" ? "selected" : ""}>INOPERATIVO</option>
                   <option value="RENOVACION" ${inp.condicion === "RENOVACION" ? "selected" : ""}>RENOVACION</option>
-                  <option value="DE BAJA / RETIRADO" ${inp.condicion === "DE BAJA / RETIRADO" ? "selected" : ""}>DE BAJA / RETIRADO</option>
+                  <option value="PARA RETIRAR" ${inp.condicion === "PARA RETIRAR" || inp.condicion === "DE BAJA / RETIRADO" ? "selected" : ""}>PARA RETIRAR</option>
                 </select>
                 <button type="button" style="background: #FEE2E2; border: 1px solid #FCA5A5; color: #DC2626; border-radius: 4px; padding: 2px 6px; font-size: 0.72rem; cursor: pointer;" onclick="eliminarLaserTintaTienda(${idx})" title="Eliminar Impresora">🗑️</button>
               </div>
@@ -6422,7 +6427,7 @@
               <div class="censo-input-row">
                 <input type="text" id="laser_${idx}_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(inp.serie || '')}" oninput="actualizarDatoLaserTinta(${idx}, 'serie', this.value); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('laser_${idx}_serie')">📷</button>
-                <input type="text" id="laser_${idx}_patr" class="input-uppercase" placeholder="Cód. Patrimonial" value="${escapeHtmlAttr(inp.codInventario || '')}" oninput="actualizarDatoLaserTinta(${idx}, 'codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
+                <input type="text" id="laser_${idx}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(inp.codInventario || '')}" oninput="actualizarDatoLaserTinta(${idx}, 'codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('laser_${idx}_patr')">📷</button>
               </div>
               <div class="censo-input-row" style="margin-top: 4px;">
@@ -6509,7 +6514,7 @@
                   <option value="OPERATIVO" ${eq.condicion === "OPERATIVO" ? "selected" : ""}>OPERATIVO</option>
                   <option value="INOPERATIVO" ${eq.condicion === "INOPERATIVO" ? "selected" : ""}>INOPERATIVO</option>
                   <option value="RENOVACION" ${eq.condicion === "RENOVACION" ? "selected" : ""}>RENOVACION</option>
-                  <option value="DE BAJA / RETIRADO" ${eq.condicion === "DE BAJA / RETIRADO" ? "selected" : ""}>DE BAJA / RETIRADO</option>
+                  <option value="PARA RETIRAR" ${eq.condicion === "PARA RETIRAR" || eq.condicion === "DE BAJA / RETIRADO" ? "selected" : ""}>PARA RETIRAR</option>
                 </select>
                 <button type="button" style="background: #FEE2E2; border: 1px solid #FCA5A5; color: #DC2626; border-radius: 4px; padding: 2px 6px; font-size: 0.72rem; cursor: pointer;" onclick="eliminarEquipoBackupAlmacen(${idx})" title="Eliminar equipo de almacén">🗑️</button>
               </div>
@@ -6538,7 +6543,7 @@
               <div class="censo-input-row">
                 <input type="text" id="bkp_${idx}_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(eq.serie || '')}" oninput="actualizarDatoBackupAlmacen(${idx}, 'serie', this.value); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('bkp_${idx}_serie')">📷</button>
-                <input type="text" id="bkp_${idx}_patr" class="input-uppercase" placeholder="Cód. Patrimonial" value="${escapeHtmlAttr(eq.codInventario || '')}" oninput="actualizarDatoBackupAlmacen(${idx}, 'codInventario', this.value); guardarBorrador();">
+                <input type="text" id="bkp_${idx}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(eq.codInventario || '')}" oninput="actualizarDatoBackupAlmacen(${idx}, 'codInventario', this.value); guardarBorrador();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('bkp_${idx}_patr')">📷</button>
               </div>
             </div>
@@ -6619,7 +6624,7 @@
               <span class="censo-item-name">📦 Activo Retirado 0${idx + 1}</span>
               <div style="display: flex; gap: 6px; align-items: center;">
                 <select id="ret_${idx}_cond" onchange="actualizarDatoRetirado(${idx}, 'condicion', this.value)" style="font-size: 0.76rem; padding: 2px 6px; min-height: 28px; width: auto;">
-                  <option value="DE BAJA / RETIRADO" ${eq.condicion === "DE BAJA / RETIRADO" || !eq.condicion ? "selected" : ""}>DE BAJA / RETIRADO</option>
+                  <option value="PARA RETIRAR" ${eq.condicion === "PARA RETIRAR" || eq.condicion === "DE BAJA / RETIRADO" || !eq.condicion ? "selected" : ""}>PARA RETIRAR</option>
                   <option value="INOPERATIVO" ${eq.condicion === "INOPERATIVO" ? "selected" : ""}>INOPERATIVO</option>
                   <option value="OPERATIVO" ${eq.condicion === "OPERATIVO" ? "selected" : ""}>OPERATIVO</option>
                   <option value="RENOVACION" ${eq.condicion === "RENOVACION" ? "selected" : ""}>RENOVACION</option>
@@ -6655,7 +6660,7 @@
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('ret_${idx}_serie')">📷</button>
               </div>
               <div class="censo-input-row">
-                <input type="text" id="ret_${idx}_patr" class="input-uppercase" placeholder="Cód. Patrimonial" value="${escapeHtmlAttr(eq.codInventario || '')}" oninput="actualizarDatoRetirado(${idx}, 'codInventario', this.value); guardarBorrador();">
+                <input type="text" id="ret_${idx}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(eq.codInventario || '')}" oninput="actualizarDatoRetirado(${idx}, 'codInventario', this.value); guardarBorrador();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('ret_${idx}_patr')">📷</button>
               </div>
             </div>
@@ -6675,7 +6680,7 @@
         serie: "",
         codInventario: "",
         ubicacionCaja: "Retirado / Baja",
-        condicion: "DE BAJA / RETIRADO"
+        condicion: "PARA RETIRAR"
       };
       equiposRetiradosBaja.push(nuevoObj);
       renderizarRetiradosCenso();
@@ -6802,8 +6807,8 @@
               hostname: valHost,
               subtipo: valSubtipo,
               rolMonitor: valRolMon,
-              estadoFisico: (valCond === "INOPERATIVO" || valCond === "DE BAJA / RETIRADO") ? "Malo" : (valCond === "RENOVACION" ? "Regular" : "Bueno"),
-              operativo: (valCond === "INOPERATIVO" || valCond === "DE BAJA / RETIRADO") ? "No" : "Sí"
+              estadoFisico: (valCond === "INOPERATIVO" || valCond === "DE BAJA / RETIRADO" || valCond === "PARA RETIRAR" || valCond.includes("RETIRAR") || valCond.includes("BAJA")) ? "Malo" : (valCond === "RENOVACION" ? "Regular" : "Bueno"),
+              operativo: (valCond === "INOPERATIVO" || valCond === "DE BAJA / RETIRADO" || valCond === "PARA RETIRAR" || valCond.includes("RETIRAR") || valCond.includes("BAJA")) ? "No" : "Sí"
             });
           }
         });
@@ -6842,8 +6847,8 @@
             ubicacion: "Administración",
             ubicacionCaja: "Administración",
             condicion: aCond,
-            estadoFisico: (aCond === "INOPERATIVO" || aCond === "DE BAJA / RETIRADO") ? "Malo" : (aCond === "RENOVACION" ? "Regular" : "Bueno"),
-            operativo: (aCond === "INOPERATIVO" || aCond === "DE BAJA / RETIRADO") ? "No" : "Sí"
+            estadoFisico: (aCond === "INOPERATIVO" || aCond === "DE BAJA / RETIRADO" || aCond === "PARA RETIRAR" || aCond.includes("RETIRAR") || aCond.includes("BAJA")) ? "Malo" : (aCond === "RENOVACION" ? "Regular" : "Bueno"),
+            operativo: (aCond === "INOPERATIVO" || aCond === "DE BAJA / RETIRADO" || aCond === "PARA RETIRAR" || aCond.includes("RETIRAR") || aCond.includes("BAJA")) ? "No" : "Sí"
           });
         }
       }
@@ -6873,8 +6878,8 @@
           ubicacion: "Mesón de Caja / Tienda",
           ubicacionCaja: "Mesón de Caja / Tienda",
           condicion: hCond,
-          estadoFisico: (hCond === "INOPERATIVO" || hCond === "DE BAJA / RETIRADO") ? "Malo" : (hCond === "RENOVACION" ? "Regular" : "Bueno"),
-          operativo: (hCond === "INOPERATIVO" || hCond === "DE BAJA / RETIRADO") ? "No" : "Sí"
+          estadoFisico: (hCond === "INOPERATIVO" || hCond === "DE BAJA / RETIRADO" || hCond === "PARA RETIRAR" || hCond.includes("RETIRAR") || hCond.includes("BAJA")) ? "Malo" : (hCond === "RENOVACION" ? "Regular" : "Bueno"),
+          operativo: (hCond === "INOPERATIVO" || hCond === "DE BAJA / RETIRADO" || hCond === "PARA RETIRAR" || hCond.includes("RETIRAR") || hCond.includes("BAJA")) ? "No" : "Sí"
         });
       }
 
@@ -6984,8 +6989,8 @@
               ubicacion: valUbic,
               ubicacionCaja: valUbic,
               condicion: valCond,
-              estadoFisico: (valCond === "INOPERATIVO" || valCond === "DE BAJA / RETIRADO") ? "Malo" : (valCond === "RENOVACION" ? "Regular" : "Bueno"),
-              operativo: (valCond === "INOPERATIVO" || valCond === "DE BAJA / RETIRADO") ? "No" : "Sí"
+              estadoFisico: (valCond === "INOPERATIVO" || valCond === "DE BAJA / RETIRADO" || valCond === "PARA RETIRAR" || valCond.includes("RETIRAR") || valCond.includes("BAJA")) ? "Malo" : (valCond === "RENOVACION" ? "Regular" : "Bueno"),
+              operativo: (valCond === "INOPERATIVO" || valCond === "DE BAJA / RETIRADO" || valCond === "PARA RETIRAR" || valCond.includes("RETIRAR") || valCond.includes("BAJA")) ? "No" : "Sí"
             });
           }
         });
@@ -7089,7 +7094,7 @@
           const valSerie = (inputSerie ? inputSerie.value : (eq.serie || "")).trim();
           const valPatr = (inputPatr ? inputPatr.value : (eq.codInventario || "")).trim();
           const tipoVal = tEl ? tEl.value : (eq.tipoEquipo || "");
-          const condVal = condEl ? condEl.value : (eq.condicion || "DE BAJA / RETIRADO");
+          const condVal = condEl ? condEl.value : (eq.condicion || "PARA RETIRAR");
 
           const tieneDatos = (valMarca !== "" || valModelo !== "" || valSerie !== "" || valPatr !== "" || Boolean(tipoVal));
 
@@ -7103,7 +7108,9 @@
               codInventario: valPatr.toUpperCase(),
               ubicacion: "Retirado / Baja",
               ubicacionCaja: "Retirado / Baja",
-              condicion: condVal
+              condicion: condVal,
+              estadoFisico: "Malo",
+              operativo: "No"
             });
           }
         });
@@ -8391,9 +8398,9 @@
           } else if (condStr === "INOPERATIVO") {
             badgeClass = "badge-cond-inoperativo";
             badgeTexto = "Inoperativo";
-          } else if (condStr.includes("BAJA") || condStr.includes("RETIRADO")) {
+          } else if (condStr.includes("BAJA") || condStr.includes("RETIRADO") || condStr.includes("RETIRAR")) {
             badgeClass = "badge-cond-inoperativo";
-            badgeTexto = "De Baja / Retirado";
+            badgeTexto = "Para Retirar";
           }
 
           invHTML += `
