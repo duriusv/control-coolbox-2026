@@ -17695,14 +17695,16 @@ async function sincronizarDatosReales(esSegundoPlano = false) {
     }
 
     /**
-     * CATÁLOGO CANÓNICO OFICIAL DE TÉCNICOS DE APOYO (5 TÉCNICOS EN MAYÚSCULAS)
+     * CATÁLOGO CANÓNICO OFICIAL DE TÉCNICOS DE APOYO (7 TÉCNICOS EN MAYÚSCULAS)
      */
     var TECNICOS_APOYO_OFICIALES = [
+      "ALFREDO TOMAS ANDIA CUSI",
       "CESAR ENRIQUE GARCÍA MENDOZA",
       "DIEGO ALEJANDRO RODRÍGUEZ MARTÍNEZ",
       "EDMAR PAUL CEDEÑO MORILLO",
       "JESÚS LUIS SILVA SANCHEZ",
-      "JIMMY JOSÉ ESPINOZA MEDINA"
+      "JIMMY JOSÉ ESPINOZA MEDINA",
+      "JUAN PABLO SIERRA CORRALES"
     ];
     if (typeof window !== "undefined") {
       window.TECNICOS_APOYO_OFICIALES = TECNICOS_APOYO_OFICIALES;
@@ -17710,11 +17712,13 @@ async function sincronizarDatosReales(esSegundoPlano = false) {
 
     /**
      * NORMALIZACIÓN CANÓNICA DE TÉCNICOS DE APOYO EN EDICIÓN
-     * Mapea cualquier alias o variante a los 5 técnicos oficiales en mayúsculas
+     * Mapea cualquier alias o variante a los 7 técnicos oficiales en mayúsculas
      */
     function normalizarTecnicoApoyoEdicion(valTec) {
       if (!valTec) return "";
       var v = String(valTec).toUpperCase().trim();
+      if (v.includes("ANDIA") || v.includes("ALFREDO")) return "ALFREDO TOMAS ANDIA CUSI";
+      if (v.includes("SIERRA") || v.includes("JUAN PABLO") || v.includes("CORRALES")) return "JUAN PABLO SIERRA CORRALES";
       if (v.includes("GARCIA") || v.includes("GARCÍA") || v.includes("CESAR")) return "CESAR ENRIQUE GARCÍA MENDOZA";
       if (v.includes("RODRIGUEZ") || v.includes("RODRÍGUEZ") || v.includes("DIEGO")) return "DIEGO ALEJANDRO RODRÍGUEZ MARTÍNEZ";
       if (v.includes("CEDEÑO") || v.includes("CEDENO") || v.includes("EDMAR")) return "EDMAR PAUL CEDEÑO MORILLO";
@@ -19614,20 +19618,24 @@ async function sincronizarDatosReales(esSegundoPlano = false) {
 
       // 0. Cuadrilla Técnica Asignada (Titular y hasta 2 Técnicos de Apoyo)
       var TECNICOS_APOYO_OFICIALES = [
+        "ALFREDO TOMAS ANDIA CUSI",
         "CESAR ENRIQUE GARCÍA MENDOZA",
         "DIEGO ALEJANDRO RODRÍGUEZ MARTÍNEZ",
         "EDMAR PAUL CEDEÑO MORILLO",
         "JESÚS LUIS SILVA SANCHEZ",
-        "JIMMY JOSÉ ESPINOZA MEDINA"
+        "JIMMY JOSÉ ESPINOZA MEDINA",
+        "JUAN PABLO SIERRA CORRALES"
       ];
 
       var tecnicosListaBase = [
+        "Alfredo Tomas Andia Cusi",
         "Andrews Berbesia",
-        "Jesús Luis Silva Sanchez",
+        "Cesar Enrique García Mendoza",
         "Diego Alejandro Rodríguez Martínez",
-        "Jimmy José Espinoza Medina",
         "Edmar Paul Cedeño Morillo",
-        "Cesar Enrique García Mendoza"
+        "Jesús Luis Silva Sanchez",
+        "Jimmy José Espinoza Medina",
+        "Juan Pablo Sierra Corrales"
       ];
       var tecnicosEnMemoria = [];
       if (Array.isArray(TIENDAS_DATA)) {
