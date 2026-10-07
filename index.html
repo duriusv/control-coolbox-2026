@@ -1732,7 +1732,7 @@
       grid-template-columns: 1fr 1fr;
       gap: 6px;
     }
-    @media (max-width: 600px) {
+    @media (max-width: 768px) {
       .censo-item-grid {
         grid-template-columns: 1fr;
       }
@@ -1769,6 +1769,11 @@
       display: flex;
       gap: 6px;
       align-items: center;
+      width: 100%;
+    }
+    .censo-input-row input {
+      flex: 1;
+      min-width: 0;
     }
     .btn-scan-compact {
       background: #EEF2F6;
@@ -1965,7 +1970,7 @@
       <div class="sidebar-footer">
         <div class="sidebar-footer-brand">
           <span>JService Ops 2026</span>
-          <span class="sidebar-footer-version">v4.6.5 Pro</span>
+          <span class="sidebar-footer-version">v4.7.0 Pro</span>
         </div>
         <div class="sidebar-footer-sub">
           for <strong>Coolbox</strong>
