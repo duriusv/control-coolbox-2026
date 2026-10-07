@@ -6018,19 +6018,21 @@
                   </select>
                 </div>
               </div>
+              <div class="censo-item-grid" style="margin-bottom: 6px;">
+                <input type="text" id="${prefix}_marca" class="input-uppercase" placeholder="${phMarca}" value="${escapeHtmlAttr(valMarca)}" oninput="guardarBorrador(); actualizarContadorCenso();">
+                <input type="text" id="${prefix}_modelo" class="input-uppercase" placeholder="${phModelo}" value="${escapeHtmlAttr(valMod)}" oninput="guardarBorrador(); actualizarContadorCenso();">
+              </div>
               <div class="censo-item-grid">
-                <div class="censo-input-row">
-                  <input type="text" id="${prefix}_marca" class="input-uppercase" placeholder="${phMarca}" value="${escapeHtmlAttr(valMarca)}" oninput="guardarBorrador(); actualizarContadorCenso();">
-                  <input type="text" id="${prefix}_modelo" class="input-uppercase" placeholder="${phModelo}" value="${escapeHtmlAttr(valMod)}" oninput="guardarBorrador(); actualizarContadorCenso();">
-                </div>
                 <div class="censo-input-row">
                   <input type="text" id="${prefix}_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(valSerie)}" oninput="guardarBorrador(); actualizarContadorCenso();">
                   <button type="button" class="btn-scan-compact" onclick="abrirEscaner('${prefix}_serie')">📷</button>
+                </div>
+                <div class="censo-input-row">
                   <input type="text" id="${prefix}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(valPatr)}" oninput="guardarBorrador(); actualizarContadorCenso();">
                   <button type="button" class="btn-scan-compact" onclick="abrirEscaner('${prefix}_patr')">📷</button>
                 </div>
-                ${extraRowHtml}
               </div>
+              ${extraRowHtml}
             </div>
           `;
         });
@@ -6071,14 +6073,16 @@
                   <option value="PARA RETIRAR">PARA RETIRAR</option>
                 </select>
               </div>
+              <div class="censo-item-grid" style="margin-bottom: 6px;">
+                <input type="text" id="${eq.id}_marca" class="input-uppercase" placeholder="Marca (ej. ${eq.marcaDef})" oninput="guardarBorrador(); actualizarContadorCenso();">
+                <input type="text" id="${eq.id}_modelo" class="input-uppercase" placeholder="Modelo (ej. ${eq.modDef})" oninput="guardarBorrador(); actualizarContadorCenso();">
+              </div>
               <div class="censo-item-grid">
-                <div class="censo-input-row">
-                  <input type="text" id="${eq.id}_marca" class="input-uppercase" placeholder="Marca (ej. ${eq.marcaDef})" oninput="guardarBorrador(); actualizarContadorCenso();">
-                  <input type="text" id="${eq.id}_modelo" class="input-uppercase" placeholder="Modelo (ej. ${eq.modDef})" oninput="guardarBorrador(); actualizarContadorCenso();">
-                </div>
                 <div class="censo-input-row">
                   <input type="text" id="${eq.id}_serie" class="input-uppercase" placeholder="N° de Serie" oninput="guardarBorrador(); actualizarContadorCenso();">
                   <button type="button" class="btn-scan-compact" onclick="abrirEscaner('${eq.id}_serie')">📷</button>
+                </div>
+                <div class="censo-input-row">
                   <input type="text" id="${eq.id}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" oninput="guardarBorrador(); actualizarContadorCenso();">
                   <button type="button" class="btn-scan-compact" onclick="abrirEscaner('${eq.id}_patr')">📷</button>
                 </div>
@@ -6134,20 +6138,22 @@
                 Tienda sin computadora administrativa asignada (NO TIENE).
               </div>
             ` : `
-              <div class="censo-item-grid" style="margin-top: 6px;">
-                <div class="censo-input-row">
-                  <input type="text" id="admin_marca" class="input-uppercase" placeholder="Marca (ej. HP o LENOVO)" value="${escapeHtmlAttr(marcaVal)}" oninput="actualizarDatoAdmin('marca', this.value); guardarBorrador(); actualizarContadorCenso();">
-                  <input type="text" id="admin_modelo" class="input-uppercase" placeholder="Modelo (ej. 200 G3 o ThinkCentre)" value="${escapeHtmlAttr(modVal)}" oninput="actualizarDatoAdmin('modelo', this.value); guardarBorrador(); actualizarContadorCenso();">
-                </div>
+              <div class="censo-item-grid" style="margin-top: 6px; margin-bottom: 6px;">
+                <input type="text" id="admin_marca" class="input-uppercase" placeholder="Marca (ej. HP o LENOVO)" value="${escapeHtmlAttr(marcaVal)}" oninput="actualizarDatoAdmin('marca', this.value); guardarBorrador(); actualizarContadorCenso();">
+                <input type="text" id="admin_modelo" class="input-uppercase" placeholder="Modelo (ej. 200 G3 o ThinkCentre)" value="${escapeHtmlAttr(modVal)}" oninput="actualizarDatoAdmin('modelo', this.value); guardarBorrador(); actualizarContadorCenso();">
+              </div>
+              <div class="censo-item-grid">
                 <div class="censo-input-row">
                   <input type="text" id="admin_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(serVal)}" oninput="actualizarDatoAdmin('serie', this.value); actualizarContadorCenso();">
                   <button type="button" class="btn-scan-compact" onclick="abrirEscaner('admin_serie')">📷</button>
+                </div>
+                <div class="censo-input-row">
                   <input type="text" id="admin_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(patrVal)}" oninput="actualizarDatoAdmin('codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
                   <button type="button" class="btn-scan-compact" onclick="abrirEscaner('admin_patr')">📷</button>
                 </div>
-                <div class="censo-input-row" style="margin-top: 4px;">
-                  <input type="text" id="admin_hostname" class="input-uppercase" placeholder="Hostname de Red (ej. LIMA-B11-ADMIN)" value="${escapeHtmlAttr(hostVal)}" oninput="actualizarDatoAdmin('hostname', this.value); guardarBorrador();">
-                </div>
+              </div>
+              <div class="censo-input-row" style="margin-top: 6px;">
+                <input type="text" id="admin_hostname" class="input-uppercase" placeholder="Hostname de Red (ej. LIMA-B11-ADMIN)" value="${escapeHtmlAttr(hostVal)}" oninput="actualizarDatoAdmin('hostname', this.value); guardarBorrador();">
               </div>
             `}
           </div>
@@ -6189,14 +6195,16 @@
                 </select>
               </div>
             </div>
+            <div class="censo-item-grid" style="margin-bottom: 6px;">
+              <input type="text" id="huellero_marca" class="input-uppercase" placeholder="Marca (ej. DIGITALPERSONA o ZKTECO)" value="${escapeHtmlAttr(marcaVal)}" oninput="actualizarDatoHuellero('marca', this.value); guardarBorrador(); actualizarContadorCenso();">
+              <input type="text" id="huellero_modelo" class="input-uppercase" placeholder="Modelo (ej. U.ARE.U 4500)" value="${escapeHtmlAttr(modVal)}" oninput="actualizarDatoHuellero('modelo', this.value); guardarBorrador(); actualizarContadorCenso();">
+            </div>
             <div class="censo-item-grid">
-              <div class="censo-input-row">
-                <input type="text" id="huellero_marca" class="input-uppercase" placeholder="Marca (ej. DIGITALPERSONA o ZKTECO)" value="${escapeHtmlAttr(marcaVal)}" oninput="actualizarDatoHuellero('marca', this.value); guardarBorrador(); actualizarContadorCenso();">
-                <input type="text" id="huellero_modelo" class="input-uppercase" placeholder="Modelo (ej. U.ARE.U 4500)" value="${escapeHtmlAttr(modVal)}" oninput="actualizarDatoHuellero('modelo', this.value); guardarBorrador(); actualizarContadorCenso();">
-              </div>
               <div class="censo-input-row">
                 <input type="text" id="huellero_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(serVal)}" oninput="actualizarDatoHuellero('serie', this.value); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('huellero_serie')">📷</button>
+              </div>
+              <div class="censo-input-row">
                 <input type="text" id="huellero_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(patrVal)}" oninput="actualizarDatoHuellero('codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('huellero_patr')">📷</button>
               </div>
@@ -6243,19 +6251,23 @@
                 <button type="button" style="background: #FEE2E2; border: 1px solid #FCA5A5; color: #DC2626; border-radius: 4px; padding: 2px 6px; font-size: 0.72rem; cursor: pointer;" onclick="eliminarPdaTienda(${idx})" title="Eliminar ${pdaNum}">🗑️</button>
               </div>
             </div>
-            <div class="censo-item-grid">
-              <div class="censo-input-row">
-                <input type="text" id="pda_${idx}_marca" list="listaMarcasPda" class="input-uppercase" placeholder="Marca (SUNMI, SHIJI, HONEYWELL, UNITECH)" value="${escapeHtmlAttr(marcaVal)}" oninput="actualizarDatoPda(${idx}, 'marca', this.value); guardarBorrador(); actualizarContadorCenso();">
-                <input type="text" id="pda_${idx}_modelo" class="input-uppercase" placeholder="Modelo (ej. V2 Pro, CT40)" value="${escapeHtmlAttr(pda.modelo || '')}" oninput="actualizarDatoPda(${idx}, 'modelo', this.value); guardarBorrador(); actualizarContadorCenso();">
-              </div>
+            <div class="censo-item-grid" style="margin-bottom: 6px;">
+              <input type="text" id="pda_${idx}_marca" list="listaMarcasPda" class="input-uppercase" placeholder="Marca (SUNMI, SHIJI, HONEYWELL, UNITECH)" value="${escapeHtmlAttr(marcaVal)}" oninput="actualizarDatoPda(${idx}, 'marca', this.value); guardarBorrador(); actualizarContadorCenso();">
+              <input type="text" id="pda_${idx}_modelo" class="input-uppercase" placeholder="Modelo (ej. V2 Pro, CT40)" value="${escapeHtmlAttr(pda.modelo || '')}" oninput="actualizarDatoPda(${idx}, 'modelo', this.value); guardarBorrador(); actualizarContadorCenso();">
+            </div>
+            <div class="censo-item-grid" style="margin-bottom: 6px;">
               <div class="censo-input-row">
                 <input type="text" id="pda_${idx}_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(pda.serie || '')}" oninput="actualizarDatoPda(${idx}, 'serie', this.value); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('pda_${idx}_serie')">📷</button>
+              </div>
+              <div class="censo-input-row">
                 <input type="text" id="pda_${idx}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(pda.codInventario || '')}" oninput="actualizarDatoPda(${idx}, 'codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('pda_${idx}_patr')">📷</button>
               </div>
-              <div class="censo-input-row" style="margin-top: 4px;">
-                <input type="text" id="pda_${idx}_anydesk" class="input-uppercase" placeholder="ID AnyDesk (ej. 123 456 789)" value="${escapeHtmlAttr(anydeskVal)}" oninput="actualizarDatoPda(${idx}, 'anydesk', this.value); guardarBorrador();">
+            </div>
+            <div class="censo-item-grid">
+              <input type="text" id="pda_${idx}_anydesk" class="input-uppercase" placeholder="ID AnyDesk (ej. 123 456 789)" value="${escapeHtmlAttr(anydeskVal)}" oninput="actualizarDatoPda(${idx}, 'anydesk', this.value); guardarBorrador();">
+              <div class="censo-input-row">
                 <input type="text" id="pda_${idx}_imei" class="input-imei-case" placeholder="Android IMEI / Serial (alfanumérico)" value="${escapeHtmlAttr(imeiVal)}" oninput="actualizarDatoPda(${idx}, 'imei', this.value); guardarBorrador();" style="text-transform: none !important;">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('pda_${idx}_imei')">📷</button>
               </div>
@@ -6339,14 +6351,16 @@
                 <button type="button" style="background: #FEE2E2; border: 1px solid #FCA5A5; color: #DC2626; border-radius: 4px; padding: 2px 6px; font-size: 0.72rem; cursor: pointer;" onclick="eliminarInalambricaTienda(${idx})" title="Eliminar Impresora">🗑️</button>
               </div>
             </div>
+            <div class="censo-item-grid" style="margin-bottom: 6px;">
+              <input type="text" id="inal_${idx}_marca" class="input-uppercase" placeholder="Marca (ej. Bixolon o Epson)" value="${escapeHtmlAttr(marcaVal)}" oninput="actualizarDatoInalambrica(${idx}, 'marca', this.value); guardarBorrador(); actualizarContadorCenso();">
+              <input type="text" id="inal_${idx}_modelo" class="input-uppercase" placeholder="Modelo (ej. SPP-R310 o TM-P80)" value="${escapeHtmlAttr(inp.modelo || '')}" oninput="actualizarDatoInalambrica(${idx}, 'modelo', this.value); guardarBorrador(); actualizarContadorCenso();">
+            </div>
             <div class="censo-item-grid">
-              <div class="censo-input-row">
-                <input type="text" id="inal_${idx}_marca" class="input-uppercase" placeholder="Marca (ej. Bixolon o Epson)" value="${escapeHtmlAttr(marcaVal)}" oninput="actualizarDatoInalambrica(${idx}, 'marca', this.value); guardarBorrador(); actualizarContadorCenso();">
-                <input type="text" id="inal_${idx}_modelo" class="input-uppercase" placeholder="Modelo (ej. SPP-R310 o TM-P80)" value="${escapeHtmlAttr(inp.modelo || '')}" oninput="actualizarDatoInalambrica(${idx}, 'modelo', this.value); guardarBorrador(); actualizarContadorCenso();">
-              </div>
               <div class="censo-input-row">
                 <input type="text" id="inal_${idx}_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(inp.serie || '')}" oninput="actualizarDatoInalambrica(${idx}, 'serie', this.value); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('inal_${idx}_serie')">📷</button>
+              </div>
+              <div class="censo-input-row">
                 <input type="text" id="inal_${idx}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(inp.codInventario || '')}" oninput="actualizarDatoInalambrica(${idx}, 'codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('inal_${idx}_patr')">📷</button>
               </div>
@@ -6425,18 +6439,21 @@
                 <button type="button" style="background: #FEE2E2; border: 1px solid #FCA5A5; color: #DC2626; border-radius: 4px; padding: 2px 6px; font-size: 0.72rem; cursor: pointer;" onclick="eliminarLaserTintaTienda(${idx})" title="Eliminar Impresora">🗑️</button>
               </div>
             </div>
+            <div class="censo-item-grid" style="margin-bottom: 6px;">
+              <input type="text" id="laser_${idx}_marca" class="input-uppercase" placeholder="Marca (ej. HP o Epson)" value="${escapeHtmlAttr(marcaVal)}" oninput="actualizarDatoLaserTinta(${idx}, 'marca', this.value); guardarBorrador(); actualizarContadorCenso();">
+              <input type="text" id="laser_${idx}_modelo" class="input-uppercase" placeholder="Modelo (ej. LaserJet P1102w o L3250)" value="${escapeHtmlAttr(inp.modelo || '')}" oninput="actualizarDatoLaserTinta(${idx}, 'modelo', this.value); guardarBorrador(); actualizarContadorCenso();">
+            </div>
             <div class="censo-item-grid">
-              <div class="censo-input-row">
-                <input type="text" id="laser_${idx}_marca" class="input-uppercase" placeholder="Marca (ej. HP o Epson)" value="${escapeHtmlAttr(marcaVal)}" oninput="actualizarDatoLaserTinta(${idx}, 'marca', this.value); guardarBorrador(); actualizarContadorCenso();">
-                <input type="text" id="laser_${idx}_modelo" class="input-uppercase" placeholder="Modelo (ej. LaserJet P1102w o L3250)" value="${escapeHtmlAttr(inp.modelo || '')}" oninput="actualizarDatoLaserTinta(${idx}, 'modelo', this.value); guardarBorrador(); actualizarContadorCenso();">
-              </div>
               <div class="censo-input-row">
                 <input type="text" id="laser_${idx}_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(inp.serie || '')}" oninput="actualizarDatoLaserTinta(${idx}, 'serie', this.value); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('laser_${idx}_serie')">📷</button>
+              </div>
+              <div class="censo-input-row">
                 <input type="text" id="laser_${idx}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(inp.codInventario || '')}" oninput="actualizarDatoLaserTinta(${idx}, 'codInventario', this.value); guardarBorrador(); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('laser_${idx}_patr')">📷</button>
               </div>
-              <div class="censo-input-row" style="margin-top: 4px;">
+            </div>
+            <div class="censo-input-row" style="margin-top: 6px;">
                 <label style="font-size: 0.72rem; color: var(--text-muted); align-self: center; white-space: nowrap;">Ubicación:</label>
                 <select id="laser_${idx}_ubic" onchange="actualizarDatoLaserTinta(${idx}, 'ubicacion', this.value); guardarBorrador();" style="width: 100%; min-height: 28px; font-size: 0.76rem;">
                   <option value="Caja 01" ${ubicVal === "Caja 01" ? "selected" : ""}>Caja 01</option>
@@ -6541,14 +6558,16 @@
                 <option value="Otro Dispositivo / Periférico" ${eq.tipo === "Otro Dispositivo / Periférico" || eq.tipo === "Otro Activo" ? "selected" : ""}>Otro Dispositivo / Periférico</option>
               </select>
             </div>
+            <div class="censo-item-grid" style="margin-bottom: 6px;">
+              <input type="text" id="bkp_${idx}_marca" class="input-uppercase" placeholder="Marca" value="${escapeHtmlAttr(marcaVal)}" oninput="actualizarDatoBackupAlmacen(${idx}, 'marca', this.value); guardarBorrador();">
+              <input type="text" id="bkp_${idx}_modelo" class="input-uppercase" placeholder="Modelo" value="${escapeHtmlAttr(eq.modelo || '')}" oninput="actualizarDatoBackupAlmacen(${idx}, 'modelo', this.value); guardarBorrador();">
+            </div>
             <div class="censo-item-grid">
-              <div class="censo-input-row">
-                <input type="text" id="bkp_${idx}_marca" class="input-uppercase" placeholder="Marca" value="${escapeHtmlAttr(marcaVal)}" oninput="actualizarDatoBackupAlmacen(${idx}, 'marca', this.value); guardarBorrador();">
-                <input type="text" id="bkp_${idx}_modelo" class="input-uppercase" placeholder="Modelo" value="${escapeHtmlAttr(eq.modelo || '')}" oninput="actualizarDatoBackupAlmacen(${idx}, 'modelo', this.value); guardarBorrador();">
-              </div>
               <div class="censo-input-row">
                 <input type="text" id="bkp_${idx}_serie" class="input-uppercase" placeholder="N° de Serie" value="${escapeHtmlAttr(eq.serie || '')}" oninput="actualizarDatoBackupAlmacen(${idx}, 'serie', this.value); actualizarContadorCenso();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('bkp_${idx}_serie')">📷</button>
+              </div>
+              <div class="censo-input-row">
                 <input type="text" id="bkp_${idx}_patr" list="listaSugerenciasPatrimonial" class="input-uppercase" placeholder="Cód. Patrimonial (o S/C)" value="${escapeHtmlAttr(eq.codInventario || '')}" oninput="actualizarDatoBackupAlmacen(${idx}, 'codInventario', this.value); guardarBorrador();">
                 <button type="button" class="btn-scan-compact" onclick="abrirEscaner('bkp_${idx}_patr')">📷</button>
               </div>
