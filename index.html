@@ -819,6 +819,7 @@
     #reader {
       width: 100% !important;
       max-width: 400px !important;
+      min-height: 260px !important;
       background: #000000 !important;
       border-radius: 10px !important;
       overflow: hidden !important;
@@ -5713,7 +5714,7 @@
      } catch (eVib) {}
    }
 
-   function abrirEscaner(idInputDestino) {
+   async function abrirEscaner(idInputDestino) {
      campoObjetivoEscaneo = idInputDestino;
      const modal = document.getElementById("reader-modal");
      if (!modal) return;
@@ -5723,44 +5724,49 @@
      modal.style.setProperty("pointer-events", "auto", "important");
      modal.classList.add("active", "open");
 
-     // 2. Inicializar instancia de Html5Qrcode con soporte de hardware acelerado
-     try {
-       if (html5QrScanner && typeof html5QrScanner.getState === "function" && html5QrScanner.getState() === 2) {
-         html5QrScanner.stop().catch(function() {});
-       }
-     } catch (eStop) {}
-
-     try {
-       html5QrScanner = new Html5Qrcode("reader", {
-         experimentalFeatures: { useBarCodeDetectorIfSupported: true },
-         verbose: false
-       });
-     } catch (eInit) {
-       if (!html5QrScanner) html5QrScanner = new Html5Qrcode("reader");
+     // 2. Limpieza síncrona/asíncrona de instancia previa para evitar bloqueos de estado
+     if (html5QrScanner) {
+       try {
+         if (html5QrScanner.isScanning) {
+           await html5QrScanner.stop();
+         }
+       } catch (eStop) {}
+       try {
+         html5QrScanner.clear();
+       } catch (eClear) {}
+       html5QrScanner = null;
      }
 
-     // 3. Visor panorámico adaptativo al 88% de ancho para códigos largos Code 128 (All-in-One / HiStone)
+     try {
+       html5QrScanner = new Html5Qrcode("reader");
+     } catch (eInit) {
+       console.error("Error al instanciar Html5Qrcode:", eInit);
+       alert("No se pudo iniciar el escáner: " + (eInit.message || eInit));
+       cerrarEscaner();
+       return;
+     }
+
+     // 3. Visor rectangular horizontal adaptativo para códigos largos Code 128 (All-in-One / HiStone)
+     const qrboxFunction = function(viewfinderWidth, viewfinderHeight) {
+       const w = Math.min(Math.floor(viewfinderWidth * 0.86), 320);
+       const h = Math.min(Math.floor(viewfinderHeight * 0.45), 140);
+       return {
+         width: Math.max(w, 220),
+         height: Math.max(h, 90)
+       };
+     };
+
      const config = {
        fps: 15,
-       qrbox: function(viewfinderWidth, viewfinderHeight) {
-         const ancho = Math.max(Math.floor(viewfinderWidth * 0.88), 240);
-         const alto = Math.max(Math.floor(Math.min(viewfinderHeight * 0.48, 170)), 110);
-         return { width: ancho, height: alto };
-       },
+       qrbox: qrboxFunction,
        aspectRatio: 1.777778
      };
 
-     // 4. Parámetros de cámara HD continua para evitar desenfoque en barras delgadas
-     const camaraConfig = {
-       facingMode: "environment",
-       focusMode: "continuous",
-       width: { ideal: 1280 },
-       height: { ideal: 720 }
-     };
-
      escanerEnEjecucion = true;
+
+     // 4. Iniciar cámara con facingMode canónico (1 sola clave exigida por html5-qrcode)
      html5QrScanner.start(
-       camaraConfig,
+       { facingMode: "environment" },
        config,
        function(codigoTexto) {
          // Lectura exitosa: emitir feedback táctil y sonoro
@@ -5781,35 +5787,37 @@
          cerrarEscaner();
        },
        function(errorLecturaFrame) {
-         // Ignorar errores de transición frame a frame
+         // Silenciar transiciones normales entre fotogramas
        }
-     ).catch(function(errPermiso) {
-       console.warn("Fallo o rechazo de cámara HD, reintentando con fallback básico:", errPermiso);
-       // Reintento defensivo con constraints básicos si el móvil no soporta HD/focusMode
-       html5QrScanner.start(
-         { facingMode: "environment" },
-         config,
-         function(codigoTexto) {
-           emitirFeedbackEscaneo();
-           if (campoObjetivoEscaneo) {
-             const inputDestino = document.getElementById(campoObjetivoEscaneo);
-             if (inputDestino) {
-               let valLimpio = String(codigoTexto || "").trim();
-               valLimpio = valLimpio.replace(/^(?:S\/N|SN|SERIAL|SERIE)[\s:_-]+/i, "").trim();
-               const esImei = campoObjetivoEscaneo.toLowerCase().includes("imei");
-               inputDestino.value = esImei ? valLimpio : valLimpio.toUpperCase();
-               inputDestino.dispatchEvent(new Event('input', { bubbles: true }));
-               if (typeof guardarBorrador === "function") guardarBorrador();
+     ).catch(function(errCamara) {
+       console.warn("Fallo con visor dinámico, activando fallback estándar:", errCamara);
+       // Reintento con configuración estándar rectangular
+       if (html5QrScanner) {
+         html5QrScanner.start(
+           { facingMode: "environment" },
+           { fps: 10, qrbox: { width: 270, height: 120 } },
+           function(codigoTexto) {
+             emitirFeedbackEscaneo();
+             if (campoObjetivoEscaneo) {
+               const inputDestino = document.getElementById(campoObjetivoEscaneo);
+               if (inputDestino) {
+                 let valLimpio = String(codigoTexto || "").trim();
+                 valLimpio = valLimpio.replace(/^(?:S\/N|SN|SERIAL|SERIE)[\s:_-]+/i, "").trim();
+                 const esImei = campoObjetivoEscaneo.toLowerCase().includes("imei");
+                 inputDestino.value = esImei ? valLimpio : valLimpio.toUpperCase();
+                 inputDestino.dispatchEvent(new Event('input', { bubbles: true }));
+                 if (typeof guardarBorrador === "function") guardarBorrador();
+               }
              }
-           }
+             cerrarEscaner();
+           },
+           function() {}
+         ).catch(function(errFinal) {
+           console.error("Fallo total de cámara:", errFinal);
+           alert("No se pudo iniciar la cámara: " + (errFinal.message || errFinal));
            cerrarEscaner();
-         },
-         function() {}
-       ).catch(function(errFinal) {
-         console.warn("Fallo total de cámara:", errFinal);
-         alert("No se pudo iniciar la cámara: " + (errFinal.message || errFinal));
-         cerrarEscaner();
-       });
+         });
+       }
      });
    }
 
