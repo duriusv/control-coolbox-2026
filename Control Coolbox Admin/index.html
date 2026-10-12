@@ -13669,9 +13669,7 @@
               ? String(tienda["observacionesCaja" + c]).trim()
               : ((tienda["obsCaja" + c] && String(tienda["obsCaja" + c]).trim())
                 ? String(tienda["obsCaja" + c]).trim()
-                : ((c === 1 && tienda.observacionesComputo && String(tienda.observacionesComputo).trim() && String(tienda.observacionesComputo).trim() !== "-" && String(tienda.observacionesComputo).trim() !== "—")
-                  ? String(tienda.observacionesComputo).trim()
-                  : "")));
+                : ""));
 
           // Evaluación determinística de las 6 tareas obligatorias fijas (Cero motor semántico de observaciones)
           // Tareas fijas: soplado AIO, pasta térmica, ticketera, lector, gaveta, orden cables (limpiezaImpresora es condicional por puesto)
@@ -13868,6 +13866,37 @@
         </div>`;
       }
 
+      // Determinación robusta y fija de Observaciones Generales de la Visita (Columna L)
+      const rawObsGen = String(
+        tienda.observacionesGenerales || 
+        tienda.observacionesComputo || 
+        tienda.observaciones || 
+        (tienda.atencion && (tienda.atencion.observacionesGenerales || tienda.atencion.observacionesComputo || tienda.atencion.observaciones)) || 
+        ""
+      ).trim();
+
+      const tieneTextoReal = rawObsGen.length > 0 && rawObsGen !== "-" && rawObsGen !== "—" && rawObsGen !== "N/A" && rawObsGen !== "NO APLICA";
+      const textoFinalObsGen = tieneTextoReal
+        ? rawObsGen
+        : (isPending 
+            ? "Pendiente de registro de novedades en visita técnica." 
+            : "Atención técnica preventiva ejecutada conforme a protocolos homologados. Sin incidencias críticas reportadas en local.");
+
+      const bloqueObservacionesGeneralesHtml = `
+        <div class="print-obs-general-card" style="margin-top: 4px; margin-bottom: 10px; border: 1px solid #cbd5e1; border-left: 3.5px solid #0284c7; background: #f8fafc; border-radius: 4px; padding: 5px 8px; font-family: 'Montserrat', sans-serif; page-break-inside: avoid !important; break-inside: avoid !important; box-sizing: border-box !important; width: 100% !important;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+            <span style="font-size: 7.2pt; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.02em;">
+              📋 Observaciones Generales de la Visita
+            </span>
+            <span style="font-size: 6.2pt; font-weight: 700; color: #64748b; text-transform: uppercase;">
+              Diagnóstico y Novedades de Campo
+            </span>
+          </div>
+          <div style="font-size: 6.8pt; color: #1e293b; line-height: 1.3; white-space: pre-wrap; word-break: break-word;">
+            ${escapeHtmlSafe(textoFinalObsGen)}
+          </div>
+        </div>`;
+
       return `
         <div id="acta-conformidad-print" class="print-sheet acta-conformidad-print ficha-tecnica-print" style="width: 100%; box-sizing: border-box; background: #ffffff; color: #0f172a; font-family: 'Montserrat', sans-serif;">
           <!-- Encabezado Corporativo en Tabla Estándar con Logos Base64 -->
@@ -13971,6 +14000,8 @@
               ${filasProtocolo}
             </tbody>
           </table>
+
+          ${bloqueObservacionesGeneralesHtml}
 
           <!-- 2. CENSO Y AUDITORÍA DE ACTIVOS DE HARDWARE -->
           <div class="print-section-title" style="font-family: 'Montserrat', sans-serif; font-size: 8.5pt; font-weight: 800; color: #0f172a; text-transform: uppercase; border-left: 3px solid #0284c7; padding-left: 6px; page-break-after: avoid !important; break-after: avoid !important; margin-top: 12px; margin-bottom: 6px;">
@@ -16116,8 +16147,6 @@
           obsCaja = String(tienda["observacionesCaja" + c]).trim();
         } else if (tienda["obsCaja" + c] && String(tienda["obsCaja" + c]).trim()) {
           obsCaja = String(tienda["obsCaja" + c]).trim();
-        } else if (c === 1 && tienda.observacionesComputo && String(tienda.observacionesComputo).trim() && String(tienda.observacionesComputo).trim() !== "-" && String(tienda.observacionesComputo).trim() !== "—") {
-          obsCaja = String(tienda.observacionesComputo).trim();
         } else {
           obsCaja = `Estación POS ${numPadded} y periféricos mantenidos según protocolo`;
         }

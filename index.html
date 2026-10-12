@@ -2202,8 +2202,8 @@
         <p style="font-size:0.82rem; color:var(--text-muted);">Selecciona una tienda para cargar los puestos de trabajo asignados.</p>
       </div>
 
-      <label for="compObs" style="margin-top:10px;">Observaciones Generales de Cómputo</label>
-      <textarea id="compObs" rows="2" placeholder="Novedades generales de los equipos de venta..." oninput="guardarBorrador()"></textarea>
+      <label for="compObs" style="margin-top:10px;">Observaciones Generales de la Visita</label>
+      <textarea id="compObs" rows="2" maxlength="300" placeholder="Novedades generales de la tienda, PDAs, contingencias o cierre técnico..." oninput="guardarBorrador()"></textarea>
 
       <!-- SUB-BLOQUE: MANTENIMIENTO A EQUIPOS DE CONTINGENCIA EN ALMACEN (OPCIONAL) -->
       <div class="card" style="margin-top: 14px; background: #F8FAFC; border: 1px solid #CBD5E1;">
@@ -2328,6 +2328,10 @@
             <button type="button" id="btnAgregarActivoRetirado" class="btn-add-adicional" onclick="agregarActivoRetirado()" style="margin-top: 6px; margin-bottom: 16px; background: #FEF2F2; border: 1px solid #FECACA; color: #DC2626;">
               ➕ Registrar Activo Retirado
             </button>
+
+            <!-- NOVEDADES GENERALES DEL CENSO E INVENTARIO (OPCIONAL) -->
+            <label for="invObs" style="margin-top:12px; font-weight:600; font-size:0.84rem; display:block;">Novedades del Censo e Inventario (Opcional):</label>
+            <textarea id="invObs" rows="2" maxlength="200" placeholder="Ej: PDA02 en cargador sin configurar, cable de lector pelado..." oninput="guardarBorrador()" style="margin-top:4px; margin-bottom:8px;"></textarea>
 
             <!-- NAVEGACION WIZARD -->
             <div class="wizard-nav-bar" style="margin-top: 16px;">
@@ -2809,7 +2813,12 @@
       Alinee el código de barras dentro del visor rectangular
     </div>
     <div id="reader"></div>
-    <button type="button" class="btn btn-secondary" style="max-width: 400px;" onclick="cerrarEscaner()">Cancelar Escaneo</button>
+    <div style="display: flex; gap: 8px; width: 100%; max-width: 400px; margin-top: 10px; justify-content: center; align-items: center;">
+      <button type="button" id="btnTorchScanner" class="btn btn-secondary" style="display: none; background: #334155; color: #f8fafc; border: 1px solid #64748b; font-size: 0.85rem; padding: 10px 14px; min-width: 110px; justify-content: center; align-items: center;" onclick="toggleLinternaScanner()">
+        🔦 Linterna
+      </button>
+      <button type="button" class="btn btn-secondary" style="flex: 1; max-width: 260px;" onclick="cerrarEscaner()">Cancelar Escaneo</button>
+    </div>
   </div>
 
   <div id="loadingOverlay" class="loading-overlay" style="position: fixed !important; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 9999999 !important; display: none; align-items: center; justify-content: center;">
@@ -4780,6 +4789,7 @@
           // Observaciones
           if (d.gabObs && String(d.gabObs).trim().length > 0) return true;
           if (d.compObs && String(d.compObs).trim().length > 0) return true;
+          if (d.invObs && String(d.invObs).trim().length > 0) return true;
           if (d.bkpObs && String(d.bkpObs).trim().length > 0) return true;
 
           // Backup Almacén
@@ -4873,8 +4883,9 @@
           // Observaciones
           const gObs = document.getElementById("gabObs") ? document.getElementById("gabObs").value.trim() : "";
           const cObs = document.getElementById("compObs") ? document.getElementById("compObs").value.trim() : "";
+          const iObs = document.getElementById("invObs") ? document.getElementById("invObs").value.trim() : "";
           const bObs = document.getElementById("bkpObs") ? document.getElementById("bkpObs").value.trim() : "";
-          if (gObs || cObs || bObs) return true;
+          if (gObs || cObs || iObs || bObs) return true;
 
           // Backup Almacén
           const chkBkp = document.getElementById("checkMantenimientoBackup");
@@ -4939,6 +4950,7 @@
 
       // 2. Mantenimiento de Cajas
       const compObs = document.getElementById("compObs"); if (compObs) compObs.value = "";
+      const invObs = document.getElementById("invObs"); if (invObs) invObs.value = "";
       if (typeof renderizarEstacionesMantenimiento === "function") {
         renderizarEstacionesMantenimiento(cajasNominalesTienda || 2);
       }
@@ -5714,6 +5726,66 @@
      } catch (eVib) {}
    }
 
+   let torchTrackActivo = null;
+   let torchEncendido = false;
+
+   function verificarSoporteTorch() {
+     const btnTorch = document.getElementById("btnTorchScanner");
+     if (!btnTorch) return;
+     btnTorch.style.display = "none";
+     torchEncendido = false;
+     torchTrackActivo = null;
+     btnTorch.innerHTML = "🔦 Linterna";
+     btnTorch.style.background = "#334155";
+     btnTorch.style.color = "#f8fafc";
+     btnTorch.style.borderColor = "#64748b";
+
+     setTimeout(function() {
+       try {
+         const videoTag = document.querySelector("#reader video");
+         if (videoTag && videoTag.srcObject) {
+           const tracks = videoTag.srcObject.getVideoTracks();
+           if (tracks && tracks.length > 0) {
+             const track = tracks[0];
+             const capabilities = typeof track.getCapabilities === "function" ? track.getCapabilities() : null;
+             if (capabilities && capabilities.torch) {
+               torchTrackActivo = track;
+               btnTorch.style.display = "inline-flex";
+             }
+           }
+         }
+       } catch (eTorch) {
+         console.warn("[TORCH] Dispositivo o navegador sin soporte de linterna:", eTorch);
+       }
+     }, 500);
+   }
+
+   async function toggleLinternaScanner() {
+     if (!torchTrackActivo) return;
+     const btnTorch = document.getElementById("btnTorchScanner");
+     try {
+       torchEncendido = !torchEncendido;
+       await torchTrackActivo.applyConstraints({
+         advanced: [{ torch: torchEncendido }]
+       });
+       if (btnTorch) {
+         if (torchEncendido) {
+           btnTorch.innerHTML = "💡 Linterna: ON";
+           btnTorch.style.background = "#F59E0B";
+           btnTorch.style.color = "#0F172A";
+           btnTorch.style.borderColor = "#FCD34D";
+         } else {
+           btnTorch.innerHTML = "🔦 Linterna";
+           btnTorch.style.background = "#334155";
+           btnTorch.style.color = "#f8fafc";
+           btnTorch.style.borderColor = "#64748b";
+         }
+       }
+     } catch (errT) {
+       console.warn("[TORCH] No se pudo conmutar la linterna:", errT);
+     }
+   }
+
    async function abrirEscaner(idInputDestino) {
      campoObjetivoEscaneo = idInputDestino;
      const modal = document.getElementById("reader-modal");
@@ -5789,7 +5861,9 @@
        function(errorLecturaFrame) {
          // Silenciar transiciones normales entre fotogramas
        }
-     ).catch(function(errCamara) {
+     ).then(function() {
+       verificarSoporteTorch();
+     }).catch(function(errCamara) {
        console.warn("Fallo con visor dinámico, activando fallback estándar:", errCamara);
        // Reintento con configuración estándar rectangular
        if (html5QrScanner) {
@@ -5812,7 +5886,9 @@
              cerrarEscaner();
            },
            function() {}
-         ).catch(function(errFinal) {
+         ).then(function() {
+           verificarSoporteTorch();
+         }).catch(function(errFinal) {
            console.error("Fallo total de cámara:", errFinal);
            alert("No se pudo iniciar la cámara: " + (errFinal.message || errFinal));
            cerrarEscaner();
@@ -5822,6 +5898,20 @@
    }
 
    async function cerrarEscaner() {
+     // 0. Apagar linterna si estaba encendida
+     if (torchTrackActivo && torchEncendido) {
+       try {
+         torchTrackActivo.applyConstraints({ advanced: [{ torch: false }] });
+       } catch (eTorchOff) {}
+     }
+     torchEncendido = false;
+     torchTrackActivo = null;
+     const btnTorch = document.getElementById("btnTorchScanner");
+     if (btnTorch) {
+       btnTorch.style.display = "none";
+       btnTorch.innerHTML = "🔦 Linterna";
+     }
+
      const modal = document.getElementById("reader-modal");
 
      // 1. Ocultar inmediatamente el DOM para desbloquear la UI sin esperar a la cámara
@@ -7679,6 +7769,7 @@
         const gabPDU = normalizarEstadoGabinete("pdu", rawGabPDU);
         const gabObs = document.getElementById("gabObs") ? document.getElementById("gabObs").value.toUpperCase() : "";
         const compObs = document.getElementById("compObs") ? document.getElementById("compObs").value.toUpperCase() : "";
+        const invObs = document.getElementById("invObs") ? document.getElementById("invObs").value.toUpperCase() : "";
 
         const estaciones = obtenerDetalleEstacionesMantenimiento();
         const equipos = compilarInventarioCenso();
@@ -7737,6 +7828,7 @@
           gabPDU: gabPDU,
           gabObs: gabObs,
           compObs: compObs,
+          invObs: invObs,
           fotoAntesBase64: fotoAntesBase64 || "",
           fotoDespuesBase64: fotoDespuesBase64 || "",
           estaciones: estaciones,
@@ -7979,6 +8071,7 @@
           document.getElementById("gabObs").value = b.gabObs;
         }
         if (document.getElementById("compObs") && b.compObs !== undefined) document.getElementById("compObs").value = b.compObs;
+        if (document.getElementById("invObs") && b.invObs !== undefined) document.getElementById("invObs").value = b.invObs;
 
         // Fotos Gabinete
         if (b.fotoAntesBase64) {
@@ -8438,7 +8531,13 @@
       }
 
       if (compObs) {
-        obsHtml += `<p class="resumen-obs-item"><strong>Obs. Cómputo General:</strong> ${escapeHtmlAttr(compObs)}</p>`;
+        obsHtml += `<p class="resumen-obs-item"><strong>Obs. Generales de la Visita:</strong> ${escapeHtmlAttr(compObs)}</p>`;
+        tieneAlgunaObs = true;
+      }
+
+      const invObsResumen = document.getElementById("invObs") ? document.getElementById("invObs").value.trim() : "";
+      if (invObsResumen) {
+        obsHtml += `<p class="resumen-obs-item"><strong>Novedades de Censo / Inventario:</strong> ${escapeHtmlAttr(invObsResumen)}</p>`;
         tieneAlgunaObs = true;
       }
 
@@ -9467,7 +9566,15 @@ _Atención registrada y sincronizada con éxito en la plataforma de JSERVICE RV.
                           Boolean((firmaClienteBase64 && firmaClienteBase64.length > 50) || firmaClienteDrawn);
 
       const valGabObs = (document.getElementById("gabObs") ? document.getElementById("gabObs").value : "").toUpperCase();
-      const valCompObs = (document.getElementById("compObs") ? document.getElementById("compObs").value : "").toUpperCase();
+      const valCompObs = (document.getElementById("compObs") ? document.getElementById("compObs").value : "").trim().toUpperCase();
+      const valInvObs = (document.getElementById("invObs") ? document.getElementById("invObs").value : "").trim().toUpperCase();
+
+      let textoGeneralConsolidado = "";
+      if (valCompObs && valInvObs) {
+        textoGeneralConsolidado = valCompObs + "\n[CENSO / ACTIVOS]: " + valInvObs;
+      } else {
+        textoGeneralConsolidado = valCompObs || valInvObs || "";
+      }
 
       // Determinación objetiva 100% basada en selectores técnicos y evidencias (Opción B: Cero falsos positivos)
       const tieneFotosEvidencia = Boolean(
@@ -9525,7 +9632,10 @@ _Atención registrada y sincronizada con éxito en la plataforma de JSERVICE RV.
 
         observacionesGabinete: valGabObs,
         estacionesMantenimiento: estacionesDetalle,
-        observacionesComputo: valCompObs,
+        observacionesComputo: textoGeneralConsolidado,
+        observacionesGenerales: textoGeneralConsolidado,
+        observaciones: textoGeneralConsolidado,
+        observacionesInventario: valInvObs,
         equipos: equiposCensados,
         fotosReporte: fotosReportePayload
       };
