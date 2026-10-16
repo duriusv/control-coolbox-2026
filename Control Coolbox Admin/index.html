@@ -13566,6 +13566,42 @@
         hour12: false
       });
 
+      // Resolución de Fecha y Hora oficial de Cierre de Atención en Campo
+      const rawFechaCierre = (tienda.atencion && (tienda.atencion.fechaHora || tienda.atencion.FECHA_HORA || tienda.atencion.fechaEjecucion || tienda.atencion.fecha)) ||
+                             tienda.fechaHora ||
+                             tienda.fechaEjecucion ||
+                             tienda.fecha ||
+                             "";
+
+      let fechaCierreTexto = "Pendiente de Ejecución";
+      if (!isPending && rawFechaCierre && rawFechaCierre !== "-" && rawFechaCierre !== "Por Ejecutar" && rawFechaCierre !== "Pendiente en cronograma") {
+        fechaCierreTexto = (typeof formatearFechaInstitucional === "function") 
+          ? formatearFechaInstitucional(rawFechaCierre) 
+          : String(rawFechaCierre);
+      }
+
+      // Resolución canónica de Cuadrilla y Técnicos de Apoyo
+      const listaApoyos = [tienda.tecnicoApoyo1, tienda.tecnicoApoyo2]
+        .concat(tienda.atencion ? [tienda.atencion.tecnicoApoyo1, tienda.atencion.tecnicoApoyo2, tienda.atencion.TECNICO_APOYO1, tienda.atencion.TECNICO_APOYO2] : [])
+        .filter(Boolean)
+        .map(t => String(t).trim())
+        .filter(t => t.length > 0 && t !== "-" && t !== "Por Asignar");
+
+      const apoyosUnicos = [...new Set(listaApoyos)];
+
+      let textoApoyo = "Sin personal de apoyo";
+      if (apoyosUnicos.length > 0) {
+        textoApoyo = apoyosUnicos.join(", ");
+      } else if (tienda.tecnicoApoyo && 
+                 tienda.tecnicoApoyo !== "Sin personal de apoyo asignado" && 
+                 tienda.tecnicoApoyo !== "Sin asignar" && 
+                 tienda.tecnicoApoyo !== "Por Asignar" && 
+                 tienda.tecnicoApoyo !== "-") {
+        textoApoyo = tienda.tecnicoApoyo;
+      } else if (isPending) {
+        textoApoyo = "Por Asignar";
+      }
+
       const estRaw = String(tienda.estado || tienda.estadoSede || "").trim().toUpperCase();
       const isConformeOrRealizado = (estRaw === "CONFORME" || estRaw === "REALIZADO" || estRaw === "ATENDIDO");
       const statusClass = isPending 
@@ -13908,7 +13944,7 @@
               <td style="width: 48%; vertical-align: middle; text-align: center; padding: 0 8px;">
                 <h1 class="print-doc-title" style="font-size: 11pt; font-weight: 800; text-transform: uppercase; color: #0f172a; margin: 0; letter-spacing: 0.02em; font-family: 'Montserrat', sans-serif;">ACTA DE CONFORMIDAD CONSOLIDADA</h1>
                 <div class="print-doc-sub" style="font-size: 7.5pt; font-weight: 600; color: #0284c7; margin-top: 2px; font-family: 'Montserrat', sans-serif;">Campaña de Mantenimiento Preventivo, Censo de Activos y Evidencias Coolbox 2026</div>
-                <div class="print-doc-date" style="font-size: 6.8pt; font-weight: 600; color: #64748b; margin-top: 2px;">Emisión: ${fechaHoraActual} • Sede: ${escapeHtmlSafe(tienda.codigo)} - ${escapeHtmlSafe(nombreLimpio)}</div>
+                <div class="print-doc-date" style="font-size: 6.8pt; font-weight: 600; color: #64748b; margin-top: 2px;">${!isPending && fechaCierreTexto !== 'Pendiente de Ejecución' ? 'Cierre en Campo: ' + escapeHtmlSafe(fechaCierreTexto) + ' • ' : ''}Emisión: ${fechaHoraActual} • Sede: ${escapeHtmlSafe(tienda.codigo)} - ${escapeHtmlSafe(nombreLimpio)}</div>
               </td>
               <td style="width: 24%; vertical-align: middle; text-align: right; padding: 0 4px;">
                 <div style="font-family: 'Montserrat', sans-serif; font-size: 6.5pt; color: #64748b; font-weight: 600; text-transform: uppercase; margin-bottom: 2px;">Servicio para:</div>
@@ -13943,6 +13979,10 @@
                       <td style="padding: 4px 8px; color: #1e293b; border-bottom: 1px solid #e2e8f0; font-size: 8pt;">${escapeHtmlSafe(tienda.ciudad || "Lima")} (${escapeHtmlSafe(tienda.region || "Lima")})</td>
                     </tr>
                     <tr>
+                      <td style="padding: 4px 8px; font-weight: 700; color: #475569; border-bottom: 1px solid #e2e8f0; font-size: 8pt;">Cierre de Atención:</td>
+                      <td style="padding: 4px 8px; font-weight: 700; color: #0284c7; border-bottom: 1px solid #e2e8f0; font-size: 8pt;">${escapeHtmlSafe(fechaCierreTexto)}</td>
+                    </tr>
+                    <tr>
                       <td style="padding: 4px 8px; font-weight: 700; color: #475569; font-size: 8pt;">Tipo Servicio:</td>
                       <td style="padding: 4px 8px; color: #1e293b; font-size: 8pt;">Mantenimiento Preventivo y Censo 2026</td>
                     </tr>
@@ -13969,7 +14009,11 @@
                     </tr>
                     <tr>
                       <td style="padding: 4px 8px; font-weight: 700; color: #475569; border-bottom: 1px solid #e2e8f0; font-size: 8pt;">Técnico Líder:</td>
-                      <td style="padding: 4px 8px; color: #1e293b; border-bottom: 1px solid #e2e8f0; font-size: 8pt;">${escapeHtmlSafe(tienda.tecnicoLider || tienda.tecnico || "Técnico Certificador JSERVICE RV")}</td>
+                      <td style="padding: 4px 8px; color: #1e293b; border-bottom: 1px solid #e2e8f0; font-size: 8pt;">${escapeHtmlSafe(tienda.tecnicoLider || tienda.tecnico || (isPending ? "Por Asignar" : "Técnico Certificador JSERVICE RV"))}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding: 4px 8px; font-weight: 700; color: #475569; border-bottom: 1px solid #e2e8f0; font-size: 8pt;">Técnico(s) de Apoyo:</td>
+                      <td style="padding: 4px 8px; color: #1e293b; border-bottom: 1px solid #e2e8f0; font-size: 8pt;">${escapeHtmlSafe(textoApoyo)}</td>
                     </tr>
                     <tr>
                       <td style="padding: 4px 8px; font-weight: 700; color: #475569; font-size: 8pt;">Supervisión General:</td>
