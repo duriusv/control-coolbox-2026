@@ -5649,7 +5649,7 @@
           <div class="filter-inputs-group">
             <div class="search-input-wrap">
               <span class="search-icon">🔍</span>
-              <input type="text" id="searchInput" class="search-input" placeholder="Buscar código, local, técnico o serial..." oninput="filtrarTiendas()">
+              <input type="text" id="searchInput" class="search-input" placeholder="Buscar código, local, técnico, serial o fecha..." oninput="filtrarTiendas()">
             </div>
 
             <select id="filtroRegion" class="filter-select" onchange="filtrarTiendas()">
@@ -5676,6 +5676,8 @@
               <option value="ORO">Oro</option>
               <option value="BRONCE">Bronce</option>
             </select>
+
+            <input type="date" id="filtroFecha" class="filter-select" title="Filtrar por fecha de atención" onchange="filtrarTiendas()" style="max-width: 125px; font-size: 0.72rem; cursor: pointer;">
 
             <button class="btn btn-secondary" onclick="limpiarFiltros()">
               Limpiar
@@ -8698,6 +8700,14 @@
         const countEquipos = tienda.equipos ? tienda.equipos.length : 0;
         const dirHint = tienda.direccion ? (tienda.direccion.length > 42 ? tienda.direccion.substring(0, 42) + '...' : tienda.direccion) : 'Coolbox Perú';
 
+        const rawFechaSede = (tienda.fechaEjecucion && tienda.fechaEjecucion !== "Por Ejecutar" && tienda.fechaEjecucion !== "-" && tienda.fechaEjecucion !== "Pendiente en cronograma")
+          ? tienda.fechaEjecucion
+          : (tienda.fechaHora && tienda.fechaHora !== "-" ? tienda.fechaHora : null);
+
+        const fechaSedeHtml = rawFechaSede
+          ? `<div style="font-size: 0.68rem; color: #64748b; font-weight: 600; margin-top: 3px; white-space: nowrap;">📅 ${escapeHtmlSafe(String(rawFechaSede).split(',')[0])}</div>`
+          : `<div style="font-size: 0.68rem; color: #94a3b8; margin-top: 3px; white-space: nowrap;">Por Ejecutar</div>`;
+
         tr.innerHTML = `
           <td style="text-align: center; font-size: 0.75rem;"><span class="code-badge">${tienda.codigo}</span></td>
           <td style="text-align: left; font-size: 0.74rem;">
@@ -8708,7 +8718,10 @@
           <td style="text-align: center; font-size: 0.72rem;"><span class="tier-badge ${tierClass}">${tienda.clasificacion}</span></td>
           <td style="text-align: center;">${gabineteBadge}</td>
           <td style="text-align: center; font-size: 0.72rem;"><span class="hardware-count-badge">${countEquipos} eq.</span></td>
-          <td style="text-align: center;">${estadoBadge}</td>
+          <td style="text-align: center;">
+            ${estadoBadge}
+            ${fechaSedeHtml}
+          </td>
           <td style="text-align: center; width: 100px;">
             <button class="btn-action btn-action-ver" onclick="abrirModalInspeccion('${tienda.codigo}')">👁️ Ver</button>
           </td>
@@ -9598,6 +9611,7 @@
       const estado = document.getElementById("filtroEstado").value;
       const tecnico = document.getElementById("filtroTecnico").value;
       const clasificacion = document.getElementById("filtroClasificacion").value;
+      const fechaFiltro = document.getElementById("filtroFecha") ? document.getElementById("filtroFecha").value : "";
 
       tiendasFiltradas = TIENDAS_DATA.filter(t => {
         const matchQuery = !query || 
@@ -9605,7 +9619,22 @@
           String(t.nombre || '').toLowerCase().includes(query) ||
           String(t.ciudad || '').toLowerCase().includes(query) ||
           String(t.tecnicoLider || '').toLowerCase().includes(query) ||
+          String(t.fechaEjecucion || '').toLowerCase().includes(query) ||
+          String(t.fechaHora || '').toLowerCase().includes(query) ||
           (t.equipos && t.equipos.some(e => e.serial && e.serial.toLowerCase().includes(query)));
+
+        // Coincidencia por Selector de Fecha (formato YYYY-MM-DD -> DD/MM/YYYY)
+        let matchFecha = true;
+        if (fechaFiltro) {
+          const partes = fechaFiltro.split("-");
+          if (partes.length === 3) {
+            const fechaBuscada = `${partes[2]}/${partes[1]}/${partes[0]}`; // DD/MM/YYYY
+            const strEj = String(t.fechaEjecucion || "");
+            const strH = String(t.fechaHora || "");
+            const strAt = String((t.atencion && (t.atencion.fechaHora || t.atencion.fechaEjecucion || t.atencion.FECHA_HORA)) || "");
+            matchFecha = strEj.includes(fechaBuscada) || strH.includes(fechaBuscada) || strAt.includes(fechaBuscada);
+          }
+        }
 
         // Región: LIMA (incluye Callao) vs PROVINCIA
         const regStr = String(t.region || '').toUpperCase().trim();
@@ -9645,7 +9674,7 @@
         const matchTecnico = tecnico === "TODOS" || t.tecnicoLider === tecnico;
         const matchClasif = clasificacion === "TODOS" || String(t.clasificacion || '').toUpperCase().includes(clasificacion.toUpperCase());
 
-        return matchQuery && matchRegion && matchEstado && matchTecnico && matchClasif;
+        return matchQuery && matchFecha && matchRegion && matchEstado && matchTecnico && matchClasif;
       });
 
       renderizarTabla();
@@ -9658,6 +9687,7 @@
       document.getElementById("filtroEstado").value = "TODOS";
       document.getElementById("filtroTecnico").value = "TODOS";
       document.getElementById("filtroClasificacion").value = "TODOS";
+      if (document.getElementById("filtroFecha")) document.getElementById("filtroFecha").value = "";
       tiendasFiltradas = [...TIENDAS_DATA];
       renderizarTabla();
       actualizarMetricasDashboard();
