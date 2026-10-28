@@ -4681,7 +4681,7 @@
           const canvas = document.createElement("canvas");
           let width = img.width;
           let height = img.height;
-          const maxDim = 800; // Máximo 800x800px
+          const maxDim = 720; // Optimizado para transmision movil eficiente (720x720px)
 
           if (width > height && width > maxDim) {
             height = Math.round((height * maxDim) / width);
@@ -4696,7 +4696,7 @@
           const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
 
-          const dataUrl = canvas.toDataURL("image/jpeg", 0.68);
+          const dataUrl = canvas.toDataURL("image/jpeg", 0.60);
           const base64Puro = dataUrl.split(",")[1];
 
           // BLINDAJE 4: Liberar memoria GPU/RAM inmediatamente
@@ -5615,7 +5615,7 @@
             const canvas = document.createElement("canvas");
             let width = img.width;
             let height = img.height;
-            const maxDimension = 1200;
+            const maxDimension = 900; // Optimizado para inspeccion nitida de rack y peso ligero
 
             if (width > height && width > maxDimension) {
               height = Math.round((height * maxDimension) / width);
@@ -5630,7 +5630,7 @@
             const ctx = canvas.getContext("2d");
             ctx.drawImage(img, 0, 0, width, height);
 
-            const dataUrl = canvas.toDataURL("image/jpeg", 0.68);
+            const dataUrl = canvas.toDataURL("image/jpeg", 0.60);
             const base64Puro = dataUrl.split(",")[1];
 
             // BLINDAJE 4: Liberar memoria GPU/RAM inmediatamente
@@ -9183,7 +9183,7 @@
 
       // Auto-Borrador Defensivo Inmediato Pre-Envío (Paracaídas Offline)
       try {
-        guardarBorrador(false);
+        guardarBorrador(false, true); // Guardado síncrono inmediato (bypasea el debounce de 400ms)
         const codTiendaLimpio = String(codigoTienda || "").trim().toUpperCase();
         if (codTiendaLimpio) {
           const rawActual = localStorage.getItem('COOLBOX_BORRADOR_SERVICIO');
@@ -9618,9 +9618,9 @@ _Atención registrada y sincronizada con éxito en la plataforma de JSERVICE RV.
         urlFotoRegistro7: urlFotoReg7,
         urlFotoRegistro8: urlFotoReg8,
 
-        // Alias Legacy por Compatibilidad Defensiva
-        urlFotoAntes: urlFotoAntes,
-        urlFotoDespues: urlFotoDespues,
+        // Alias Legacy por Compatibilidad Defensiva (vaciados para no duplicar ~1MB en el payload)
+        urlFotoAntes: "",
+        urlFotoDespues: "",
         urlFotoPos1: "",
         urlFotoPos2: "",
         urlFotoBackup: "",
@@ -9649,7 +9649,7 @@ _Atención registrada y sincronizada con éxito en la plataforma de JSERVICE RV.
       // =========================================================================
       // Guardar inmediatamente el estado íntegro en memoria local antes de red o spinner
       try {
-        guardarBorrador(false);
+        guardarBorrador(false, true); // Guardado síncrono forzado pre-envío (bypasea debounce de 400ms)
       } catch (eBorr) {
         console.warn("[PARACAÍDAS OFFLINE] Aviso en guardarBorrador:", eBorr);
       }
@@ -9661,9 +9661,28 @@ _Atención registrada y sincronizada con éxito en la plataforma de JSERVICE RV.
       } catch (eRaw) {}
 
       try {
+        // Payload ligero para el snapshot: preserva metadatos, estaciones y censo,
+        // pero evita duplicar las 10 cadenas Base64 que ya residen en borradorBase
+        const payloadLigeroRespaldo = Object.assign({}, payload, {
+          urlFotoGabineteAntes: "[EN_BORRADOR]",
+          urlFotoGabineteDespues: "[EN_BORRADOR]",
+          urlFotoAntes: "",
+          urlFotoDespues: "",
+          urlFotoRegistro1: "[EN_BORRADOR]",
+          urlFotoRegistro2: "[EN_BORRADOR]",
+          urlFotoRegistro3: "[EN_BORRADOR]",
+          urlFotoRegistro4: "[EN_BORRADOR]",
+          urlFotoRegistro5: "[EN_BORRADOR]",
+          urlFotoRegistro6: "[EN_BORRADOR]",
+          urlFotoRegistro7: "[EN_BORRADOR]",
+          urlFotoRegistro8: "[EN_BORRADOR]",
+          firmaTecnicoBase64: "[EN_BORRADOR]",
+          firmaClienteBase64: "[EN_BORRADOR]"
+        });
+
         const snapshotPreEnvio = Object.assign({}, borradorBase, {
           codigoTienda: codTiendaLimpio,
-          payload: payload,
+          payload: payloadLigeroRespaldo,
           fechaRespaldo: ahoraISO,
           estadoPreEnvio: "PENDIENTE_TRANSMISION"
         });
@@ -9725,29 +9744,39 @@ _Atención registrada y sincronizada con éxito en la plataforma de JSERVICE RV.
       let exitoServidor = false;
       let respuestaDatos = null;
 
-      // BLINDAJE 1: Centinela de tiempo de espera calibrado a 50s para provincias
+      // BLINDAJE 1: Centinela de tiempo de espera calibrado para antenas móviles lentas (90s)
       const controller = (typeof AbortController !== "undefined") ? new AbortController() : null;
 
-      // Mensaje de progreso a los 20s para dar calma en redes lentas de provincias
-      const progresoTimeoutId = setTimeout(() => {
-        const loadingSub = document.getElementById("loadingSubText");
-        if (loadingSub) {
-          loadingSub.textContent = "⏳ Transmitiendo evidencias a Google Drive... por favor espere sin cerrar la app.";
-        }
-        const loadingMain = document.getElementById("loadingText");
-        if (loadingMain) {
-          loadingMain.textContent = "Cargando archivos en Google Drive...";
-        }
-      }, 20000);
+      // Mensajes dinámicos de progreso escalonados para tranquilidad del técnico
+      const timersProgreso = [
+        setTimeout(() => {
+          const sub = document.getElementById("loadingSubText");
+          const main = document.getElementById("loadingText");
+          if (main) main.textContent = "Subiendo fotografías a Google Drive...";
+          if (sub) sub.textContent = "⏳ Creando evidencias en la nube de Drive (20s)... por favor no cierre la app.";
+        }, 20000),
+        setTimeout(() => {
+          const sub = document.getElementById("loadingSubText");
+          const main = document.getElementById("loadingText");
+          if (main) main.textContent = "Sincronizando inventario con la base central...";
+          if (sub) sub.textContent = "💾 Registrando estaciones y censo en Google Sheets (45s)... casi listo.";
+        }, 45000),
+        setTimeout(() => {
+          const sub = document.getElementById("loadingSubText");
+          const main = document.getElementById("loadingText");
+          if (main) main.textContent = "Finalizando confirmación con el servidor...";
+          if (sub) sub.textContent = "📡 Esperando confirmación final del backend (70s)... mantenga la pantalla activa.";
+        }, 70000)
+      ];
 
       const timeoutId = controller ? setTimeout(() => {
-        console.warn("[PARACAÍDAS OFFLINE] Timeout de red alcanzado (55 segundos). Abortando fetch para activar contingencia...");
+        console.warn("[PARACAÍDAS OFFLINE] Timeout de red alcanzado (90 segundos). Abortando fetch para activar contingencia...");
         try {
           controller.abort();
         } catch (eAbort) {
           console.warn("[PARACAÍDAS OFFLINE] Error al abortar controlador:", eAbort);
         }
-      }, 55000) : null;
+      }, 90000) : null;
 
       try {
         const fetchOptions = {
@@ -9764,7 +9793,7 @@ _Atención registrada y sincronizada con éxito en la plataforma de JSERVICE RV.
 
         const respuestaFetch = await fetch(API_BACKEND_URL, fetchOptions);
         if (timeoutId) clearTimeout(timeoutId);
-        if (progresoTimeoutId) clearTimeout(progresoTimeoutId);
+        timersProgreso.forEach(t => clearTimeout(t));
 
         if (respuestaFetch && respuestaFetch.ok) {
           try {
@@ -9786,7 +9815,7 @@ _Atención registrada y sincronizada con éxito en la plataforma de JSERVICE RV.
         }
       } catch (errFetch) {
         if (timeoutId) clearTimeout(timeoutId);
-        if (progresoTimeoutId) clearTimeout(progresoTimeoutId);
+        timersProgreso.forEach(t => clearTimeout(t));
         console.warn("[PARACAÍDAS OFFLINE] Error en fetch POST (Timeout, Abort, Failed to fetch o corte de señal):", errFetch);
       }
 
